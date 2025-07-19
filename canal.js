@@ -285,6 +285,7 @@ $(document).ready(function() {
     // Función para cambiar de canal
     function changeChannel(url, canal) {
         const iframe = $("#embedIframe");
+        const floatingIframe = $("#floatingIframe");
         const loadingMessage = $('<div class="loading-message">Cargando canal sin anuncios...</div>');
         
         // Mostrar mensaje de carga
@@ -307,8 +308,12 @@ $(document).ready(function() {
             }
         }
         
-        // Cambiar URL del iframe
+        // Actualizar ambos reproductores
         iframe.attr('src', optimizedUrl);
+        if (isFloating) {
+            floatingIframe.attr('src', optimizedUrl);
+        }
+        
         currentUrl = optimizedUrl;
         currentCanal = canal;
         
@@ -328,6 +333,45 @@ $(document).ready(function() {
         }, additionalTimeout);
         
         console.log(`Canal cambiado a: ${canal} - URL optimizada: ${optimizedUrl}`);
+        
+        // Mostrar notificación en modo flotante
+        if (isFloating) {
+            showFloatingNotification(`Cambiado a ${canal}`);
+        }
+    }
+    
+    // Función para mostrar notificaciones en modo flotante
+    function showFloatingNotification(message) {
+        const notification = $(`<div class="float-notification">${message}</div>`);
+        $('body').append(notification);
+        
+        // Estilos inline para la notificación
+        notification.css({
+            position: 'fixed',
+            top: '80px',
+            right: '20px',
+            background: 'rgba(22, 163, 74, 0.95)',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            zIndex: '1001',
+            backdropFilter: 'blur(10px)',
+            transform: 'translateX(100%)',
+            transition: 'transform 0.3s ease'
+        });
+        
+        // Animación de entrada
+        setTimeout(() => {
+            notification.css('transform', 'translateX(0)');
+        }, 100);
+        
+        // Remover después de 3 segundos
+        setTimeout(() => {
+            notification.css('transform', 'translateX(100%)');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
     
     // Función para recargar el canal actual
@@ -390,6 +434,182 @@ $(document).ready(function() {
             console.log('🛡️ Bloqueador de anuncios activado');
             // Ejecutar limpieza inmediata
             cleanIframeAds();
+        }
+    });
+    
+    // FUNCIONALIDAD DEL REPRODUCTOR FLOTANTE
+    let isFloating = false;
+    let isDragging = false;
+    let dragStartX, dragStartY, initialX, initialY;
+    
+    // Activar/desactivar modo flotante
+    $('#floatToggle').on('click', function() {
+        toggleFloatingPlayer();
+    });
+    
+    function toggleFloatingPlayer() {
+        const floatingPlayer = $('#floatingPlayer');
+        const mainIframe = $('#embedIframe');
+        const floatingIframe = $('#floatingIframe');
+        
+        if (!isFloating) {
+            // Activar modo flotante
+            const currentSrc = mainIframe.attr('src');
+            floatingIframe.attr('src', currentSrc);
+            floatingPlayer.addClass('active');
+            
+            // Ocultar iframe principal
+            $('.subiframe').hide();
+            
+            isFloating = true;
+            $('#floatToggle').text('📺 Normal');
+            
+            console.log('📱 Modo flotante activado');
+            
+            // Auto-ocultar después de 3 segundos en móvil
+            if (isMobile) {
+                setTimeout(() => {
+                    $('.player-controls').css('opacity', '0');
+                }, 3000);
+            }
+        } else {
+            // Desactivar modo flotante
+            const currentSrc = floatingIframe.attr('src');
+            mainIframe.attr('src', currentSrc);
+            floatingPlayer.removeClass('active');
+            
+            // Mostrar iframe principal
+            $('.subiframe').show();
+            
+            isFloating = false;
+            $('#floatToggle').text('📱 Flotante');
+            
+            console.log('📺 Modo normal activado');
+        }
+    }
+    
+    // Cerrar reproductor flotante
+    $('#floatClose').on('click', function() {
+        if (isFloating) {
+            toggleFloatingPlayer();
+        }
+    });
+    
+    // Pantalla completa para reproductor flotante
+    $('#floatFullscreen').on('click', function() {
+        const iframe = document.getElementById('floatingIframe');
+        if (iframe.requestFullscreen) {
+            iframe.requestFullscreen();
+        } else if (iframe.webkitRequestFullscreen) {
+            iframe.webkitRequestFullscreen();
+        } else if (iframe.mozRequestFullScreen) {
+            iframe.mozRequestFullScreen();
+        }
+    });
+    
+    // Botón de pantalla completa para reproductor principal
+    $('#btnFullscreen').on('click', function() {
+        const iframe = document.getElementById('embedIframe');
+        if (iframe.requestFullscreen) {
+            iframe.requestFullscreen();
+        } else if (iframe.webkitRequestFullscreen) {
+            iframe.webkitRequestFullscreen();
+        } else if (iframe.mozRequestFullScreen) {
+            iframe.mozRequestFullScreen();
+        }
+        
+        console.log('🔍 Solicitando pantalla completa');
+    });
+    
+    // Recargar reproductor flotante
+    $('#floatReload').on('click', function() {
+        const floatingIframe = $('#floatingIframe');
+        const currentSrc = floatingIframe.attr('src');
+        const separator = currentSrc.includes('?') ? '&' : '?';
+        const newUrl = currentSrc + separator + '_reload=' + new Date().getTime();
+        floatingIframe.attr('src', newUrl);
+        
+        console.log('↻ Reproductor flotante recargado');
+    });
+    
+    // Control de volumen (toggle mute)
+    let isMuted = false;
+    $('#floatVolume').on('click', function() {
+        const button = $(this);
+        if (isMuted) {
+            button.text('🔊');
+            isMuted = false;
+        } else {
+            button.text('🔇');
+            isMuted = true;
+        }
+        
+        // Nota: El control de volumen real depende del iframe externo
+        console.log('🔊 Toggle mute:', isMuted ? 'Silenciado' : 'Con audio');
+    });
+    
+    // FUNCIONALIDAD DE ARRASTRAR (DRAG & DROP)
+    $('#dragHandle').on('mousedown touchstart', function(e) {
+        isDragging = true;
+        const floatingPlayer = $('#floatingPlayer')[0];
+        const rect = floatingPlayer.getBoundingClientRect();
+        
+        if (e.type === 'mousedown') {
+            dragStartX = e.clientX - rect.left;
+            dragStartY = e.clientY - rect.top;
+        } else {
+            dragStartX = e.touches[0].clientX - rect.left;
+            dragStartY = e.touches[0].clientY - rect.top;
+        }
+        
+        initialX = rect.left;
+        initialY = rect.top;
+        
+        e.preventDefault();
+    });
+    
+    $(document).on('mousemove touchmove', function(e) {
+        if (!isDragging) return;
+        
+        let clientX, clientY;
+        if (e.type === 'mousemove') {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        } else {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        }
+        
+        const x = clientX - dragStartX;
+        const y = clientY - dragStartY;
+        
+        // Limitar dentro de la ventana
+        const maxX = window.innerWidth - 300; // ancho del reproductor
+        const maxY = window.innerHeight - 169; // alto del reproductor
+        
+        const constrainedX = Math.max(0, Math.min(x, maxX));
+        const constrainedY = Math.max(0, Math.min(y, maxY));
+        
+        $('#floatingPlayer').css({
+            left: constrainedX + 'px',
+            top: constrainedY + 'px',
+            right: 'auto'
+        });
+        
+        e.preventDefault();
+    });
+    
+    $(document).on('mouseup touchend', function() {
+        isDragging = false;
+    });
+    
+    // Mostrar controles al tocar en móvil
+    $('#floatingPlayer').on('touchstart', function() {
+        if (isMobile) {
+            $('.player-controls').css('opacity', '1');
+            setTimeout(() => {
+                $('.player-controls').css('opacity', '0');
+            }, 4000);
         }
     });
     

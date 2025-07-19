@@ -135,6 +135,10 @@
                     sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
                     referrerpolicy="no-referrer">
                 </iframe>
+                <!-- Botón para activar modo flotante -->
+                <button class="float-toggle-btn" id="floatToggle">
+                    📱 Flotante
+                </button>
             </div>
             <div class="centerfull">
                 <button id="btnIframe">
@@ -143,6 +147,37 @@
                 <button id="btnAdBlocker" class="ad-blocker-btn">
                     🛡️ Bloqueador ON
                 </button>
+                <button id="btnFullscreen" class="ad-blocker-btn" style="background-color: #7c3aed; margin-left: 0.25rem;">
+                    🔍 Pantalla Completa
+                </button>
+            </div>
+        </div>
+
+        <!-- REPRODUCTOR FLOTANTE -->
+        <div class="floating-player" id="floatingPlayer">
+            <div class="float-drag-handle" id="dragHandle">
+                <div class="drag-dots"></div>
+            </div>
+            <iframe id="floatingIframe" 
+                allowfullscreen="true" 
+                scrolling="no" 
+                allow="encrypted-media" 
+                width="100%" 
+                height="100%" 
+                frameborder="0" 
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+                referrerpolicy="no-referrer">
+            </iframe>
+            <div class="player-controls">
+                <div>
+                    <button class="player-control-btn" id="floatClose">✕</button>
+                    <button class="player-control-btn" id="floatFullscreen">⛶</button>
+                </div>
+                <div>
+                    <button class="player-control-btn" id="floatVolume">🔊</button>
+                    <button class="player-control-btn" id="floatReload">↻</button>
+                </div>
             </div>
         </div>
 
