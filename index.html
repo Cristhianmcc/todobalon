@@ -12,35 +12,33 @@
     <meta name="HandheldFriendly" content="true">
     
     <!-- SEGURIDAD Y BLOQUEADOR DE ANUNCIOS -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://la12hd.com https://la14hd.com https://code.jquery.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdnjs.cloudflare.com https://la12hd.com https://la14hd.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://la12hd.com https://la14hd.com; frame-src https://la12hd.com https://la14hd.com; connect-src 'self' https://la12hd.com https://la14hd.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://la12hd.com https://la14hd.com https://code.jquery.com https://cdnjs.cloudflare.com data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://cdnjs.cloudflare.com https://la12hd.com https://la14hd.com; style-src 'self' 'unsafe-inline' https://la12hd.com https://la14hd.com; img-src 'self' data: blob: https://la12hd.com https://la14hd.com; frame-src https://la12hd.com https://la14hd.com; connect-src 'self' https://la12hd.com https://la14hd.com wss: ws:; media-src 'self' https://la12hd.com https://la14hd.com blob: data:; object-src 'none'; base-uri 'self';">
     <meta name="referrer" content="no-referrer">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta name="robots" content="noindex, nofollow">
     
     <!-- BLOQUEO ADICIONAL DE ANUNCIOS -->
     <style>
-        /* Bloquear elementos comunes de anuncios */
-        [class*="ad"], [id*="ad"], [class*="banner"], [id*="banner"],
-        [class*="popup"], [id*="popup"], [class*="modal"], [id*="modal"],
+        /* Bloquear solo elementos específicos de anuncios */
         .advertisement, .ads, .ad-container, .banner-ad, .popup-ad,
+        [class*="google-ad"], [id*="google-ad"],
         iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
-        iframe[src*="googleadservices"], iframe[src*="amazon-adsystem"],
-        iframe[src*="facebook.com/tr"], iframe[src*="google-analytics"] {
+        iframe[src*="googleadservices"], iframe[src*="amazon-adsystem"] {
             display: none !important;
             visibility: hidden !important;
-            opacity: 0 !important;
             height: 0 !important;
             width: 0 !important;
         }
         
-        /* Evitar overlays y popups */
+        /* Mejorar experiencia móvil */
         body {
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
-        *[style*="position: fixed"], *[style*="position:fixed"] {
-            position: static !important;
+        /* Asegurar que el iframe funcione en móvil */
+        #embedIframe {
+            border: none !important;
+            outline: none !important;
         }
     </style>
     
@@ -76,62 +74,44 @@
 
     <!-- BLOQUEADOR DE ANUNCIOS AVANZADO -->
     <script>
-        // Bloquear anuncios y popups agresivamente
+        // Bloquear anuncios y popups pero permitir reproducción
         (function() {
             'use strict';
             
-            // Bloquear ventanas emergentes
-            window.open = function() { return null; };
-            window.alert = function() { return null; };
-            window.confirm = function() { return true; };
+            // Bloquear solo popups maliciosos, no todos los window.open
+            const originalOpen = window.open;
+            window.open = function(url, name, specs) {
+                if (url && (url.includes('ad') || url.includes('popup') || url.includes('banner'))) {
+                    return null;
+                }
+                return originalOpen.call(window, url, name, specs);
+            };
             
-            // Bloquear redirects no deseados
-            const originalLocation = window.location.href;
-            Object.defineProperty(window, 'location', {
-                get: function() { return { href: originalLocation }; },
-                set: function() { return false; }
-            });
-            
-            // Remover elementos de anuncios
+            // Remover elementos de anuncios pero no afectar video
             function removeAds() {
                 const adSelectors = [
-                    '[class*="ad"]', '[id*="ad"]', '[class*="banner"]', '[id*="banner"]',
-                    '[class*="popup"]', '[id*="popup"]', '[class*="modal"]', '[id*="modal"]',
                     '.advertisement', '.ads', '.ad-container', '.banner-ad', '.popup-ad',
+                    '[class*="google-ad"]', '[id*="google-ad"]',
                     'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]',
-                    'iframe[src*="googleadservices"]', 'iframe[src*="amazon-adsystem"]'
+                    'iframe[src*="googleadservices"]', 'div[id*="ad-banner"]'
                 ];
                 
                 adSelectors.forEach(selector => {
                     try {
                         const elements = document.querySelectorAll(selector);
                         elements.forEach(el => {
-                            if (el && !el.classList.contains('embedIframe')) {
+                            if (el && !el.id.includes('embedIframe') && !el.classList.contains('video-frame')) {
                                 el.style.display = 'none';
-                                el.remove();
                             }
                         });
                     } catch (e) {}
                 });
             }
             
-            // Ejecutar limpieza periódica
-            setInterval(removeAds, 1000);
+            // Ejecutar limpieza menos frecuente
+            setInterval(removeAds, 3000);
             document.addEventListener('DOMContentLoaded', removeAds);
             
-            // Prevenir clicks maliciosos
-            document.addEventListener('click', function(e) {
-                const target = e.target;
-                if (target && (
-                    target.classList.contains('ad') ||
-                    target.id.includes('ad') ||
-                    target.classList.contains('popup')
-                )) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-            }, true);
         })();
     </script>
 
@@ -215,15 +195,14 @@
                 <iframe allowfullscreen="true" 
                     scrolling="no" 
                     src="https://la12hd.com/vivo/canal.php?stream=dsports"
-                    allow="encrypted-media; fullscreen; picture-in-picture" 
+                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; gyroscope" 
                     width="100%" 
                     height="100%" 
                     frameborder="0" 
                     id="embedIframe" 
                     loading="lazy"
-                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-modals"
-                    referrerpolicy="no-referrer"
-                    csp="default-src 'self' https://la12hd.com https://la14hd.com; script-src 'self' 'unsafe-inline'; object-src 'none';">
+                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-modals allow-popups"
+                    referrerpolicy="no-referrer">
                 </iframe>
             </div>
             <div class="centerfull">
