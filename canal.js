@@ -4,6 +4,102 @@ $(document).ready(function() {
     let currentUrl = "https://la12hd.com/vivo/canal.php?stream=dsports";
     let currentCanal = "dsports";
     
+    // DETECCIÓN DE DISPOSITIVO MÓVIL
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    
+    console.log('📱 Dispositivo detectado:', {
+        isMobile: isMobile,
+        isIOS: isIOS,
+        isAndroid: isAndroid,
+        userAgent: navigator.userAgent
+    });
+    
+    // FUNCIÓN DE OPTIMIZACIÓN PARA MÓVILES
+    function optimizeForMobile() {
+        console.log('📱 Aplicando optimizaciones para móviles...');
+        
+        // 1. Ajustar configuración del iframe para móviles
+        const iframe = $('#embedIframe');
+        
+        if (isIOS) {
+            // Configuraciones específicas para iOS
+            iframe.attr('allow', 'autoplay; encrypted-media; fullscreen');
+            iframe.attr('allowfullscreen', 'true');
+            iframe.attr('webkitallowfullscreen', 'true');
+            iframe.attr('mozallowfullscreen', 'true');
+        }
+        
+        if (isAndroid) {
+            // Configuraciones específicas para Android
+            iframe.attr('allow', 'autoplay; encrypted-media; fullscreen');
+            iframe.removeAttr('sandbox'); // Remover sandbox en Android
+        }
+        
+        // 2. Ajustar el viewport dinámicamente
+        updateViewportForMobile();
+        
+        // 3. Configurar touch events para mejor interacción
+        setupTouchEvents();
+        
+        // 4. Reducir frecuencia de limpieza de anuncios en móviles
+        if (window.adBlockerCleanupInterval) {
+            clearInterval(window.adBlockerCleanupInterval);
+        }
+        
+        // Limpieza menos frecuente en móviles para mejor rendimiento
+        window.adBlockerCleanupInterval = setInterval(function() {
+            if (adBlockerActive) {
+                cleanIframeAds();
+            }
+        }, 5000); // 5 segundos en lugar de 2
+        
+        console.log('✅ Optimizaciones móviles aplicadas');
+    }
+    
+    // Función para actualizar viewport en móviles
+    function updateViewportForMobile() {
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.setAttribute('content', 
+                'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
+            );
+        }
+    }
+    
+    // Función para configurar eventos táctiles
+    function setupTouchEvents() {
+        // Mejorar respuesta táctil en botones
+        $('.canal-btn, #btnIframe, .ad-blocker-btn').on('touchstart', function() {
+            $(this).addClass('touch-active');
+        }).on('touchend touchcancel', function() {
+            $(this).removeClass('touch-active');
+        });
+        
+        // Prevenir zoom accidental en doble tap
+        $('body').on('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+        
+        let lastTouchEnd = 0;
+        $('body').on('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        });
+    }
+    
+    // OPTIMIZACIONES PARA MÓVILES
+    if (isMobile) {
+        // Aplicar configuraciones específicas para móviles
+        optimizeForMobile();
+    }
+    
     // BLOQUEADOR DE ANUNCIOS - Función principal
     function initAdBlocker() {
         console.log('🛡️ Bloqueador de anuncios inicializado');
@@ -194,23 +290,44 @@ $(document).ready(function() {
         // Mostrar mensaje de carga
         iframe.parent().append(loadingMessage);
         
+        // OPTIMIZACIÓN MÓVIL: URLs alternativas para móviles
+        let optimizedUrl = url;
+        
+        if (isMobile) {
+            console.log('📱 Optimizando URL para móvil:', url);
+            
+            // Agregar parámetros específicos para móviles
+            const separator = url.includes('?') ? '&' : '?';
+            optimizedUrl = url + separator + 'mobile=1&autoplay=1&muted=0';
+            
+            // Para iOS, intentar URLs alternativas si es necesario
+            if (isIOS && url.includes('la14hd.com')) {
+                // Algunas URLs funcionan mejor en iOS con diferentes parámetros
+                optimizedUrl = url.replace('canales.php', 'canal.php');
+            }
+        }
+        
         // Cambiar URL del iframe
-        iframe.attr('src', url);
-        currentUrl = url;
+        iframe.attr('src', optimizedUrl);
+        currentUrl = optimizedUrl;
         currentCanal = canal;
+        
+        // Timeout más largo para móviles
+        const cleanupTimeout = isMobile ? 5000 : 3000;
+        const additionalTimeout = isMobile ? 8000 : 5000;
         
         // Limpiar anuncios después de cargar
         setTimeout(function() {
             cleanIframeAds();
             loadingMessage.remove();
-        }, 3000);
+        }, cleanupTimeout);
         
-        // Limpieza adicional después de 5 segundos
+        // Limpieza adicional
         setTimeout(function() {
             cleanIframeAds();
-        }, 5000);
+        }, additionalTimeout);
         
-        console.log(`Canal cambiado a: ${canal} - URL: ${url} (Con bloqueador activo)`);
+        console.log(`Canal cambiado a: ${canal} - URL optimizada: ${optimizedUrl}`);
     }
     
     // Función para recargar el canal actual
@@ -486,6 +603,47 @@ $(document).ready(function() {
     // Activar botón del bloqueador por defecto
     $('#btnAdBlocker').addClass('active');
     
+    // DIAGNÓSTICO MÓVIL
+    if (isMobile) {
+        setTimeout(function() {
+            runMobileDiagnostic();
+        }, 3000);
+    }
+    
     console.log('🛡️ Sistema anti-anuncios activado');
+    
+    // Función de diagnóstico para móviles
+    function runMobileDiagnostic() {
+        console.log('📱 === DIAGNÓSTICO MÓVIL ===');
+        console.log('Screen size:', window.innerWidth + 'x' + window.innerHeight);
+        console.log('Device pixel ratio:', window.devicePixelRatio);
+        console.log('Platform:', navigator.platform);
+        console.log('Network:', navigator.connection ? navigator.connection.effectiveType : 'Unknown');
+        
+        // Verificar si el iframe está cargando
+        const iframe = document.getElementById('embedIframe');
+        if (iframe) {
+            console.log('Iframe src:', iframe.src);
+            console.log('Iframe dimensions:', iframe.offsetWidth + 'x' + iframe.offsetHeight);
+            
+            // Intentar detectar si hay contenido en el iframe
+            try {
+                if (iframe.contentDocument) {
+                    console.log('✅ Iframe accessible');
+                } else {
+                    console.log('⚠️ Iframe cross-origin (normal)');
+                }
+            } catch (e) {
+                console.log('⚠️ Iframe access blocked (normal for cross-origin)');
+            }
+        }
+        
+        // Sugerir URLs alternativas si hay problemas
+        console.log('💡 Si no carga, prueba:');
+        console.log('- Desactivar el bloqueador temporalmente');
+        console.log('- Cambiar entre canales');
+        console.log('- Usar modo escritorio en el navegador');
+        console.log('=== FIN DIAGNÓSTICO ===');
+    }
     
 });
