@@ -4,10 +4,192 @@ $(document).ready(function() {
     let currentUrl = "https://la12hd.com/vivo/canal.php?stream=dsports";
     let currentCanal = "dsports";
     
+    // BLOQUEADOR DE ANUNCIOS - Función principal
+    function initAdBlocker() {
+        console.log('🛡️ Bloqueador de anuncios inicializado');
+        
+        // Bloquear scripts de anuncios conocidos
+        blockAdScripts();
+        
+        // Observar y eliminar elementos de anuncios
+        observeAndRemoveAds();
+        
+        // Bloquear popups
+        blockPopups();
+        
+        // Limpiar iframe de anuncios cada 2 segundos
+        setInterval(function() {
+            if (adBlockerActive) {
+                cleanIframeAds();
+            }
+        }, 2000);
+    }
+    
+    // Función para bloquear scripts de anuncios
+    function blockAdScripts() {
+        const adDomains = [
+            'doubleclick.net',
+            'googleadservices.com',
+            'googlesyndication.com',
+            'amazon-adsystem.com',
+            'adsystem.com',
+            'ads.yahoo.com',
+            'advertising.com',
+            'adsense.com',
+            'adnxs.com',
+            'adsystem',
+            'ads',
+            'publicidad'
+        ];
+        
+        // Interceptar requests de anuncios
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            const url = args[0];
+            if (typeof url === 'string') {
+                for (let domain of adDomains) {
+                    if (url.includes(domain)) {
+                        console.log('🚫 Bloqueado:', url);
+                        return Promise.reject(new Error('Ad blocked'));
+                    }
+                }
+            }
+            return originalFetch.apply(this, args);
+        };
+    }
+    
+    // Función para observar y eliminar anuncios del DOM
+    function observeAndRemoveAds() {
+        const adSelectors = [
+            'iframe[src*="ads"]',
+            'iframe[src*="advertisement"]',
+            'iframe[src*="publicidad"]',
+            'iframe[src*="banner"]',
+            'div[class*="ads"]',
+            'div[class*="ad-"]',
+            'div[id*="ads"]',
+            'div[id*="ad-"]',
+            '.popup',
+            '.overlay',
+            '.modal',
+            '[class*="popup"]',
+            '[class*="overlay"]',
+            '[class*="banner"]',
+            'ins.adsbygoogle'
+        ];
+        
+        // Eliminar anuncios existentes
+        function removeAds() {
+            adSelectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.display = 'none !important';
+                    el.remove();
+                });
+            });
+            
+            // También dentro del iframe si es posible
+            try {
+                const iframe = document.getElementById('embedIframe');
+                if (iframe && iframe.contentDocument) {
+                    adSelectors.forEach(selector => {
+                        const iframeElements = iframe.contentDocument.querySelectorAll(selector);
+                        iframeElements.forEach(el => {
+                            el.style.display = 'none';
+                            el.remove();
+                        });
+                    });
+                }
+            } catch (e) {
+                // Cross-origin restriction, ignorar
+            }
+        }
+        
+        // Ejecutar limpieza cada 1 segundo
+        setInterval(function() {
+            if (adBlockerActive) {
+                removeAds();
+            }
+        }, 1000);
+        
+        // Observer para nuevos elementos
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes.length > 0) {
+                    removeAds();
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+    
+    // Función para bloquear popups
+    function blockPopups() {
+        // Sobrescribir window.open
+        window.open = function() {
+            console.log('🚫 Popup bloqueado');
+            return null;
+        };
+        
+        // Bloquear eventos de click en anuncios
+        document.addEventListener('click', function(e) {
+            const target = e.target;
+            if (target.tagName === 'A' || target.closest('a')) {
+                const link = target.tagName === 'A' ? target : target.closest('a');
+                const href = link.href;
+                
+                if (href && (
+                    href.includes('ads') || 
+                    href.includes('advertisement') || 
+                    href.includes('publicidad') ||
+                    href.includes('banner') ||
+                    href.includes('popup')
+                )) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🚫 Click en anuncio bloqueado:', href);
+                    return false;
+                }
+            }
+        }, true);
+    }
+    
+    // Función para limpiar anuncios del iframe
+    function cleanIframeAds() {
+        if (!adBlockerActive) return;
+        
+        const iframe = document.getElementById('embedIframe');
+        if (iframe) {
+            try {
+                // Intentar acceder al contenido del iframe
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (iframeDoc) {
+                    // Eliminar elementos de anuncios dentro del iframe
+                    const adElements = iframeDoc.querySelectorAll([
+                        'div[class*="ads"]',
+                        'div[class*="ad-"]',
+                        'iframe[src*="ads"]',
+                        '.popup',
+                        '.overlay'
+                    ].join(','));
+                    
+                    adElements.forEach(el => el.remove());
+                }
+            } catch (e) {
+                // Cross-origin, no podemos acceder
+                console.log('ℹ️ Cross-origin iframe, no se puede limpiar directamente');
+            }
+        }
+    }
+    
     // Función para cambiar de canal
     function changeChannel(url, canal) {
         const iframe = $("#embedIframe");
-        const loadingMessage = $('<div class="loading-message">Cargando canal...</div>');
+        const loadingMessage = $('<div class="loading-message">Cargando canal sin anuncios...</div>');
         
         // Mostrar mensaje de carga
         iframe.parent().append(loadingMessage);
@@ -17,12 +199,18 @@ $(document).ready(function() {
         currentUrl = url;
         currentCanal = canal;
         
-        // Remover mensaje de carga después de 2 segundos
+        // Limpiar anuncios después de cargar
         setTimeout(function() {
+            cleanIframeAds();
             loadingMessage.remove();
-        }, 2000);
+        }, 3000);
         
-        console.log(`Canal cambiado a: ${canal} - URL: ${url}`);
+        // Limpieza adicional después de 5 segundos
+        setTimeout(function() {
+            cleanIframeAds();
+        }, 5000);
+        
+        console.log(`Canal cambiado a: ${canal} - URL: ${url} (Con bloqueador activo)`);
     }
     
     // Función para recargar el canal actual
@@ -68,6 +256,24 @@ $(document).ready(function() {
         setTimeout(function() {
             button.text('Recargar canal');
         }, 1500);
+    });
+    
+    // Event listener para botón del bloqueador
+    let adBlockerActive = true;
+    $('#btnAdBlocker').on('click', function() {
+        const button = $(this);
+        
+        if (adBlockerActive) {
+            adBlockerActive = false;
+            button.removeClass('active').text('🚫 Bloqueador OFF');
+            console.log('🔓 Bloqueador de anuncios desactivado');
+        } else {
+            adBlockerActive = true;
+            button.addClass('active').text('🛡️ Bloqueador ON');
+            console.log('🛡️ Bloqueador de anuncios activado');
+            // Ejecutar limpieza inmediata
+            cleanIframeAds();
+        }
     });
     
     // Función para actualizar el título según el canal
@@ -273,5 +479,13 @@ $(document).ready(function() {
     
     // Inicializar contador
     updateChannelCounter(currentCanal);
+    
+    // INICIALIZAR BLOQUEADOR DE ANUNCIOS
+    initAdBlocker();
+    
+    // Activar botón del bloqueador por defecto
+    $('#btnAdBlocker').addClass('active');
+    
+    console.log('🛡️ Sistema anti-anuncios activado');
     
 });

@@ -98,6 +98,34 @@ header {
     cursor: pointer;
 }
 
+/* Botón del bloqueador de anuncios */
+.ad-blocker-btn {
+    background-color: #dc2626;
+    color: white;
+    padding: 0.50rem 0.75rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.ad-blocker-btn:hover {
+    background-color: #b91c1c;
+    transform: translateY(-2px);
+}
+
+.ad-blocker-btn.active {
+    background-color: #16a34a;
+}
+
+.ad-blocker-btn.active:hover {
+    background-color: #15803d;
+}
+
 /* Selector de Canales */
 .canal-selector {
     display: grid;
@@ -204,6 +232,45 @@ header {
 
 .error-message button:hover {
     background-color: #f3f4f6;
+}
+
+/* BLOQUEADOR DE ANUNCIOS - Ocultar elementos publicitarios comunes */
+iframe[src*="ads"], 
+iframe[src*="advertisement"], 
+iframe[src*="publicidad"],
+iframe[src*="banner"],
+iframe[src*="popup"],
+.ads, 
+.advertisement, 
+.publicidad,
+.banner,
+.popup,
+.ad-container,
+.google-ads,
+.adsystem,
+[class*="ads-"],
+[class*="ad-"],
+[id*="ads-"],
+[id*="ad-"],
+[class*="publicidad"],
+[id*="publicidad"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+/* Ocultar overlays y modales de anuncios */
+.overlay,
+.modal-overlay,
+.popup-overlay,
+.ad-overlay,
+[class*="overlay"] {
+    display: none !important;
+    visibility: hidden !important;
 }
 
 .subiframe
