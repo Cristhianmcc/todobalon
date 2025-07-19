@@ -282,14 +282,16 @@ $(document).ready(function() {
         }
     }
     
-    // Función para cambiar de canal
+    // Función para cambiar de canal con mejoras visuales
     function changeChannel(url, canal) {
         const iframe = $("#embedIframe");
-        const floatingIframe = $("#floatingIframe");
-        const loadingMessage = $('<div class="loading-message">Cargando canal sin anuncios...</div>');
+        const loadingOverlay = $('<div class="loading-overlay"><div class="loading-spinner"></div></div>');
         
-        // Mostrar mensaje de carga
-        iframe.parent().append(loadingMessage);
+        // Mostrar overlay de carga con spinner
+        iframe.parent().append(loadingOverlay);
+        
+        // Agregar efecto de fade out al iframe actual
+        iframe.css('opacity', '0.3');
         
         // OPTIMIZACIÓN MÓVIL: URLs alternativas para móviles
         let optimizedUrl = url;
@@ -308,11 +310,8 @@ $(document).ready(function() {
             }
         }
         
-        // Actualizar ambos reproductores
+        // Actualizar reproductor
         iframe.attr('src', optimizedUrl);
-        if (isFloating) {
-            floatingIframe.attr('src', optimizedUrl);
-        }
         
         currentUrl = optimizedUrl;
         currentCanal = canal;
@@ -324,7 +323,8 @@ $(document).ready(function() {
         // Limpiar anuncios después de cargar
         setTimeout(function() {
             cleanIframeAds();
-            loadingMessage.remove();
+            loadingOverlay.remove();
+            iframe.css('opacity', '1');
         }, cleanupTimeout);
         
         // Limpieza adicional
@@ -332,46 +332,10 @@ $(document).ready(function() {
             cleanIframeAds();
         }, additionalTimeout);
         
+        // Actualizar título del documento
+        updateTitle(canal);
+        
         console.log(`Canal cambiado a: ${canal} - URL optimizada: ${optimizedUrl}`);
-        
-        // Mostrar notificación en modo flotante
-        if (isFloating) {
-            showFloatingNotification(`Cambiado a ${canal}`);
-        }
-    }
-    
-    // Función para mostrar notificaciones en modo flotante
-    function showFloatingNotification(message) {
-        const notification = $(`<div class="float-notification">${message}</div>`);
-        $('body').append(notification);
-        
-        // Estilos inline para la notificación
-        notification.css({
-            position: 'fixed',
-            top: '80px',
-            right: '20px',
-            background: 'rgba(22, 163, 74, 0.95)',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            zIndex: '1001',
-            backdropFilter: 'blur(10px)',
-            transform: 'translateX(100%)',
-            transition: 'transform 0.3s ease'
-        });
-        
-        // Animación de entrada
-        setTimeout(() => {
-            notification.css('transform', 'translateX(0)');
-        }, 100);
-        
-        // Remover después de 3 segundos
-        setTimeout(() => {
-            notification.css('transform', 'translateX(100%)');
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
     }
     
     // Función para recargar el canal actual
@@ -437,78 +401,10 @@ $(document).ready(function() {
         }
     });
     
-    // FUNCIONALIDAD DEL REPRODUCTOR FLOTANTE
-    let isFloating = false;
-    let isDragging = false;
-    let dragStartX, dragStartY, initialX, initialY;
-    
-    // Activar/desactivar modo flotante
-    $('#floatToggle').on('click', function() {
-        toggleFloatingPlayer();
-    });
-    
-    function toggleFloatingPlayer() {
-        const floatingPlayer = $('#floatingPlayer');
-        const mainIframe = $('#embedIframe');
-        const floatingIframe = $('#floatingIframe');
-        
-        if (!isFloating) {
-            // Activar modo flotante
-            const currentSrc = mainIframe.attr('src');
-            floatingIframe.attr('src', currentSrc);
-            floatingPlayer.addClass('active');
-            
-            // Ocultar iframe principal
-            $('.subiframe').hide();
-            
-            isFloating = true;
-            $('#floatToggle').text('📺 Normal');
-            
-            console.log('📱 Modo flotante activado');
-            
-            // Auto-ocultar después de 3 segundos en móvil
-            if (isMobile) {
-                setTimeout(() => {
-                    $('.player-controls').css('opacity', '0');
-                }, 3000);
-            }
-        } else {
-            // Desactivar modo flotante
-            const currentSrc = floatingIframe.attr('src');
-            mainIframe.attr('src', currentSrc);
-            floatingPlayer.removeClass('active');
-            
-            // Mostrar iframe principal
-            $('.subiframe').show();
-            
-            isFloating = false;
-            $('#floatToggle').text('📱 Flotante');
-            
-            console.log('📺 Modo normal activado');
-        }
-    }
-    
-    // Cerrar reproductor flotante
-    $('#floatClose').on('click', function() {
-        if (isFloating) {
-            toggleFloatingPlayer();
-        }
-    });
-    
-    // Pantalla completa para reproductor flotante
-    $('#floatFullscreen').on('click', function() {
-        const iframe = document.getElementById('floatingIframe');
-        if (iframe.requestFullscreen) {
-            iframe.requestFullscreen();
-        } else if (iframe.webkitRequestFullscreen) {
-            iframe.webkitRequestFullscreen();
-        } else if (iframe.mozRequestFullScreen) {
-            iframe.mozRequestFullScreen();
-        }
-    });
+    // FUNCIONALIDAD DE BOTONES PRINCIPALES
     
     // Botón de pantalla completa para reproductor principal
-    $('#btnFullscreen').on('click', function() {
+    $('#btnFullscreen, button[title="Pantalla completa"]').on('click', function() {
         const iframe = document.getElementById('embedIframe');
         if (iframe.requestFullscreen) {
             iframe.requestFullscreen();
@@ -521,97 +417,180 @@ $(document).ready(function() {
         console.log('🔍 Solicitando pantalla completa');
     });
     
-    // Recargar reproductor flotante
-    $('#floatReload').on('click', function() {
-        const floatingIframe = $('#floatingIframe');
-        const currentSrc = floatingIframe.attr('src');
-        const separator = currentSrc.includes('?') ? '&' : '?';
-        const newUrl = currentSrc + separator + '_reload=' + new Date().getTime();
-        floatingIframe.attr('src', newUrl);
-        
-        console.log('↻ Reproductor flotante recargado');
+    // EVENTOS DE BOTONES PRINCIPALES
+    
+    // Botón Picture-in-Picture (Overlay hover)
+    $('#pipButton').on('click', function() {
+        activatePictureInPicture();
     });
     
-    // Control de volumen (toggle mute)
-    let isMuted = false;
-    $('#floatVolume').on('click', function() {
-        const button = $(this);
-        if (isMuted) {
-            button.text('🔊');
-            isMuted = false;
-        } else {
-            button.text('🔇');
-            isMuted = true;
+    // Función para activar Picture-in-Picture
+    async function activatePictureInPicture() {
+        try {
+            const iframe = document.getElementById('embedIframe');
+            const button = $('#pipButton');
+            const pipText = button.find('.pip-text');
+            
+            // Cambiar texto del botón mientras se procesa
+            const originalText = pipText.text();
+            pipText.text('Activando...');
+            
+            // Método 1: Intentar acceder al video dentro del iframe (limitado por CORS)
+            try {
+                if (iframe.contentDocument) {
+                    const video = iframe.contentDocument.querySelector('video');
+                    if (video && video.requestPictureInPicture) {
+                        await video.requestPictureInPicture();
+                        console.log('✅ Picture-in-Picture activado desde iframe');
+                        pipText.text('Video Separado');
+                        setTimeout(() => pipText.text(originalText), 3000);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log('⚠️ No se puede acceder al contenido del iframe (CORS)');
+            }
+            
+            // Método 2: Simular clic derecho en el iframe para mostrar menú contextual
+            try {
+                const event = new MouseEvent('contextmenu', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window,
+                    button: 2
+                });
+                iframe.dispatchEvent(event);
+                
+                // Mostrar mensaje temporal
+                showPiPQuickTip();
+                pipText.text(originalText);
+                return;
+                
+            } catch (e) {
+                console.log('⚠️ No se pudo simular clic derecho');
+            }
+            
+            // Método 3: Crear un mensaje visual para el usuario
+            showPiPInstructions();
+            pipText.text(originalText);
+            
+        } catch (error) {
+            console.error('❌ Error al activar Picture-in-Picture:', error);
+            $('#pipButton .pip-text').text('Separar este video');
+            showPiPInstructions();
         }
-        
-        // Nota: El control de volumen real depende del iframe externo
-        console.log('🔊 Toggle mute:', isMuted ? 'Silenciado' : 'Con audio');
-    });
+    }
     
-    // FUNCIONALIDAD DE ARRASTRAR (DRAG & DROP)
-    $('#dragHandle').on('mousedown touchstart', function(e) {
-        isDragging = true;
-        const floatingPlayer = $('#floatingPlayer')[0];
-        const rect = floatingPlayer.getBoundingClientRect();
-        
-        if (e.type === 'mousedown') {
-            dragStartX = e.clientX - rect.left;
-            dragStartY = e.clientY - rect.top;
-        } else {
-            dragStartX = e.touches[0].clientX - rect.left;
-            dragStartY = e.touches[0].clientY - rect.top;
-        }
-        
-        initialX = rect.left;
-        initialY = rect.top;
-        
-        e.preventDefault();
-    });
-    
-    $(document).on('mousemove touchmove', function(e) {
-        if (!isDragging) return;
-        
-        let clientX, clientY;
-        if (e.type === 'mousemove') {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        } else {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        }
-        
-        const x = clientX - dragStartX;
-        const y = clientY - dragStartY;
-        
-        // Limitar dentro de la ventana
-        const maxX = window.innerWidth - 300; // ancho del reproductor
-        const maxY = window.innerHeight - 169; // alto del reproductor
-        
-        const constrainedX = Math.max(0, Math.min(x, maxX));
-        const constrainedY = Math.max(0, Math.min(y, maxY));
-        
-        $('#floatingPlayer').css({
-            left: constrainedX + 'px',
-            top: constrainedY + 'px',
-            right: 'auto'
+    // Función para mostrar tip rápido
+    function showPiPQuickTip() {
+        const quickTip = $('<div class="pip-quick-tip">💡 Busca "Picture-in-Picture" en el menú contextual</div>');
+        $('body').append(quickTip);
+        quickTip.css({
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: 'rgba(22, 163, 74, 0.95)',
+            color: 'white',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.5rem',
+            zIndex: '9999',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+            maxWidth: '280px',
+            textAlign: 'center'
         });
         
-        e.preventDefault();
-    });
+        setTimeout(() => quickTip.fadeOut(300, () => quickTip.remove()), 4000);
+    }
     
-    $(document).on('mouseup touchend', function() {
-        isDragging = false;
-    });
-    
-    // Mostrar controles al tocar en móvil
-    $('#floatingPlayer').on('touchstart', function() {
-        if (isMobile) {
-            $('.player-controls').css('opacity', '1');
-            setTimeout(() => {
-                $('.player-controls').css('opacity', '0');
-            }, 4000);
-        }
-    });
+    // Función para mostrar instrucciones de PiP
+    function showPiPInstructions() {
+        const instructions = $(`
+            <div class="pip-instructions">
+                <div class="pip-content">
+                    <h3>🎯 Activar "Separar Video"</h3>
+                    <p><strong>Opción 1:</strong> Haz clic derecho sobre el video → "Picture-in-Picture"</p>
+                    <p><strong>Opción 2:</strong> Busca el botón <span class="pip-button-example">📱 Flotante</span> en el video</p>
+                    <p><strong>Opción 3:</strong> En navegadores compatibles, usa Ctrl+Alt+P</p>
+                    <button class="pip-close">Entendido</button>
+                </div>
+            </div>
+        `);
+        
+        $('body').append(instructions);
+        
+        // Estilos inline para las instrucciones
+        instructions.css({
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: '10000',
+            backdropFilter: 'blur(5px)'
+        });
+        
+        $('.pip-content').css({
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            padding: '2rem',
+            borderRadius: '1rem',
+            maxWidth: '500px',
+            textAlign: 'center',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+        });
+        
+        $('.pip-content h3').css({
+            marginBottom: '1rem',
+            fontSize: '1.5rem'
+        });
+        
+        $('.pip-content p').css({
+            marginBottom: '0.75rem',
+            lineHeight: '1.5'
+        });
+        
+        $('.pip-button-example').css({
+            background: 'rgba(255, 255, 255, 0.2)',
+            padding: '0.25rem 0.5rem',
+            borderRadius: '0.5rem',
+            fontWeight: 'bold'
+        });
+        
+        $('.pip-close').css({
+            background: 'rgba(255, 255, 255, 0.9)',
+            color: '#333',
+            border: 'none',
+            padding: '0.75rem 2rem',
+            borderRadius: '2rem',
+            fontWeight: 'bold',
+            marginTop: '1rem',
+            cursor: 'pointer',
+            fontSize: '1rem'
+        });
+        
+        // Cerrar instrucciones
+        $('.pip-close').on('click', function() {
+            instructions.remove();
+        });
+        
+        // Cerrar al hacer clic fuera
+        instructions.on('click', function(e) {
+            if (e.target === this) {
+                instructions.remove();
+            }
+        });
+        
+        // Auto-cerrar después de 10 segundos
+        setTimeout(() => {
+            instructions.fadeOut(500, () => instructions.remove());
+        }, 10000);
+    }
     
     // Función para actualizar el título según el canal
     function updateTitle(canal) {

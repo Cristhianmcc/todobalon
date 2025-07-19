@@ -3,9 +3,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- OPTIMIZACIONES MÓVILES -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,9 +15,9 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://la12hd.com https://la14hd.com https://code.jquery.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://la12hd.com https://la14hd.com; connect-src 'self' https://la12hd.com https://la14hd.com;">
     <meta name="referrer" content="no-referrer">
     
-    <title>TodoBalon - Canales Deportivos Sin Anuncios</title>
+    <title>TodoBalon - Canales en Vivo HD</title>
     <meta name="description"
-        content="Pagina solo con fines Educativos">
+        content="Disfruta de los mejores canales deportivos en vivo con la mejor calidad HD. Incluye DirecTV Sports, ESPN y más.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="">
     <meta name="author" content="Dsport Libre">
@@ -56,7 +55,7 @@
 
 <body>
     <header>
-        <a href="/" class="title-header">TodoBalon</a>
+        <a href="#" class="title-header">TodoBalon</a>
         <div></div>
         <div class="prelogo">
             <a href="/" class="logodef">
@@ -135,56 +134,38 @@
                     sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
                     referrerpolicy="no-referrer">
                 </iframe>
-                <!-- Botón para activar modo flotante -->
-                <button class="float-toggle-btn" id="floatToggle">
-                    📱 Flotante
-                </button>
             </div>
             <div class="centerfull">
-                <button id="btnIframe">
-                    Recargar canal
+                <button id="btnIframe" title="Recargar el canal actual para una mejor experiencia">
+                    🔄 Recargar canal
                 </button>
-                <button id="btnAdBlocker" class="ad-blocker-btn">
-                    🛡️ Bloqueador ON
-                </button>
-                <button id="btnFullscreen" class="ad-blocker-btn" style="background-color: #7c3aed; margin-left: 0.25rem;">
-                    🔍 Pantalla Completa
-                </button>
+              
             </div>
         </div>
 
-        <!-- REPRODUCTOR FLOTANTE -->
-        <div class="floating-player" id="floatingPlayer">
-            <div class="float-drag-handle" id="dragHandle">
-                <div class="drag-dots"></div>
+        <div class="centerfull margin-top-2">
+            <h2 class="title">Experiencia Deportiva Premium</h2>
+            <p class="content-text">Disfruta de la mejor transmisión deportiva en vivo con calidad HD y sin interrupciones. Nuestra plataforma está optimizada para ofrecerte la mejor experiencia tanto en móviles como en desktop.</p>
+            <div class="mt-3 pb-4">
+                <p class="content-text">Acceso gratuito a los mejores canales deportivos con fines educativos. Compatible con todos los dispositivos y navegadores modernos.
+                </p>
             </div>
-            <iframe id="floatingIframe" 
-                allowfullscreen="true" 
-                scrolling="no" 
-                allow="encrypted-media" 
-                width="100%" 
-                height="100%" 
-                frameborder="0" 
-                loading="lazy"
-                sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
-                referrerpolicy="no-referrer">
-            </iframe>
-            <div class="player-controls">
-                <div>
-                    <button class="player-control-btn" id="floatClose">✕</button>
-                    <button class="player-control-btn" id="floatFullscreen">⛶</button>
-                </div>
-                <div>
-                    <button class="player-control-btn" id="floatVolume">🔊</button>
-                    <button class="player-control-btn" id="floatReload">↻</button>
-                </div>
-            </div>
-        </div>
-
-      
         </div>
 
     </main>
+
+    <footer>
+        <div style="text-align: center;">
+            <span class="footer-title">
+                🏆 FUTBOL HD - EXPERIENCIA DEPORTIVA PREMIUM
+            </span>
+            <ul class="redes">
+                <li><a href="#" class="red-item">📺 Canales HD</a></li>
+                <li><a href="#" class="red-item">🎯 Sin Anuncios</a></li>
+                <li><a href="#" class="red-item">📱 Móvil Optimizado</a></li>
+            </ul>
+        </div>
+    </footer>
 
    
 </body>
