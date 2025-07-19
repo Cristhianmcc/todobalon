@@ -12,8 +12,37 @@
     <meta name="HandheldFriendly" content="true">
     
     <!-- SEGURIDAD Y BLOQUEADOR DE ANUNCIOS -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://la12hd.com https://la14hd.com https://code.jquery.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://la12hd.com https://la14hd.com; connect-src 'self' https://la12hd.com https://la14hd.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://la12hd.com https://la14hd.com https://code.jquery.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdnjs.cloudflare.com https://la12hd.com https://la14hd.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://la12hd.com https://la14hd.com; frame-src https://la12hd.com https://la14hd.com; connect-src 'self' https://la12hd.com https://la14hd.com; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="no-referrer">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- BLOQUEO ADICIONAL DE ANUNCIOS -->
+    <style>
+        /* Bloquear elementos comunes de anuncios */
+        [class*="ad"], [id*="ad"], [class*="banner"], [id*="banner"],
+        [class*="popup"], [id*="popup"], [class*="modal"], [id*="modal"],
+        .advertisement, .ads, .ad-container, .banner-ad, .popup-ad,
+        iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
+        iframe[src*="googleadservices"], iframe[src*="amazon-adsystem"],
+        iframe[src*="facebook.com/tr"], iframe[src*="google-analytics"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+        }
+        
+        /* Evitar overlays y popups */
+        body {
+            overflow-x: hidden;
+        }
+        
+        *[style*="position: fixed"], *[style*="position:fixed"] {
+            position: static !important;
+        }
+    </style>
     
     <title>TodoBalon - Canales en Vivo HD</title>
     <meta name="description"
@@ -44,6 +73,67 @@
       }
     }
   </script>
+
+    <!-- BLOQUEADOR DE ANUNCIOS AVANZADO -->
+    <script>
+        // Bloquear anuncios y popups agresivamente
+        (function() {
+            'use strict';
+            
+            // Bloquear ventanas emergentes
+            window.open = function() { return null; };
+            window.alert = function() { return null; };
+            window.confirm = function() { return true; };
+            
+            // Bloquear redirects no deseados
+            const originalLocation = window.location.href;
+            Object.defineProperty(window, 'location', {
+                get: function() { return { href: originalLocation }; },
+                set: function() { return false; }
+            });
+            
+            // Remover elementos de anuncios
+            function removeAds() {
+                const adSelectors = [
+                    '[class*="ad"]', '[id*="ad"]', '[class*="banner"]', '[id*="banner"]',
+                    '[class*="popup"]', '[id*="popup"]', '[class*="modal"]', '[id*="modal"]',
+                    '.advertisement', '.ads', '.ad-container', '.banner-ad', '.popup-ad',
+                    'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]',
+                    'iframe[src*="googleadservices"]', 'iframe[src*="amazon-adsystem"]'
+                ];
+                
+                adSelectors.forEach(selector => {
+                    try {
+                        const elements = document.querySelectorAll(selector);
+                        elements.forEach(el => {
+                            if (el && !el.classList.contains('embedIframe')) {
+                                el.style.display = 'none';
+                                el.remove();
+                            }
+                        });
+                    } catch (e) {}
+                });
+            }
+            
+            // Ejecutar limpieza periódica
+            setInterval(removeAds, 1000);
+            document.addEventListener('DOMContentLoaded', removeAds);
+            
+            // Prevenir clicks maliciosos
+            document.addEventListener('click', function(e) {
+                const target = e.target;
+                if (target && (
+                    target.classList.contains('ad') ||
+                    target.id.includes('ad') ||
+                    target.classList.contains('popup')
+                )) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
+        })();
+    </script>
 
     <!-- JQUERY-->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" defer></script>
@@ -125,14 +215,15 @@
                 <iframe allowfullscreen="true" 
                     scrolling="no" 
                     src="https://la12hd.com/vivo/canal.php?stream=dsports"
-                    allow="encrypted-media" 
+                    allow="encrypted-media; fullscreen; picture-in-picture" 
                     width="100%" 
                     height="100%" 
                     frameborder="0" 
                     id="embedIframe" 
                     loading="lazy"
-                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
-                    referrerpolicy="no-referrer">
+                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-modals"
+                    referrerpolicy="no-referrer"
+                    csp="default-src 'self' https://la12hd.com https://la14hd.com; script-src 'self' 'unsafe-inline'; object-src 'none';">
                 </iframe>
             </div>
             <div class="centerfull">
