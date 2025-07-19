@@ -52,6 +52,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.4/luxon.min.js" defer></script>
     <!-- CUSTOM JS-->
     <script src="canal.js?v=1.2" defer></script>
+    
+    <!-- SCRIPT PARA FORZAR AUTOPLAY INMEDIATO -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const iframe = document.getElementById('embedIframe');
+            
+            // Forzar interacción inmediata
+            function forceInteraction() {
+                if (iframe) {
+                    // Simular múltiples eventos
+                    ['click', 'mousedown', 'touchstart'].forEach(eventType => {
+                        const event = new Event(eventType, { bubbles: true, cancelable: true });
+                        iframe.dispatchEvent(event);
+                    });
+                    
+                    // Hacer click real en el iframe
+                    iframe.click();
+                    
+                    console.log('🎬 Forzando autoplay inmediato');
+                }
+            }
+            
+            // Ejecutar inmediatamente y después de intervalos
+            forceInteraction();
+            setTimeout(forceInteraction, 1000);
+            setTimeout(forceInteraction, 3000);
+            setTimeout(forceInteraction, 5000);
+            
+            // Listener para cuando se carga el iframe
+            iframe.addEventListener('load', function() {
+                setTimeout(forceInteraction, 500);
+                setTimeout(forceInteraction, 2000);
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -125,15 +160,17 @@
             <div class="preframe">
                 <iframe allowfullscreen="true" 
                     scrolling="no" 
-                    src="https://la12hd.com/vivo/canal.php?stream=dsports"
-                    allow="encrypted-media" 
+                    src="https://la12hd.com/vivo/canal.php?stream=dsports&autoplay=1&preload=auto&muted=0"
+                    allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *; accelerometer *; gyroscope *" 
                     width="100%" 
                     height="100%" 
                     frameborder="0" 
                     id="embedIframe" 
-                    loading="lazy"
-                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
-                    referrerpolicy="no-referrer">
+                    loading="eager"
+                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-top-navigation"
+                    referrerpolicy="no-referrer"
+                    autoplay="true"
+                    onload="this.click(); setTimeout(() => this.click(), 1000); setTimeout(() => this.click(), 3000);">
                 </iframe>
             </div>
             <div class="centerfull">

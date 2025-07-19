@@ -282,10 +282,59 @@ $(document).ready(function() {
         }
     }
     
+    // Función para bloqueo agresivo de anuncios
+    function blockAdsAggressively() {
+        // Bloquear scripts conocidos de anuncios
+        const adScripts = document.querySelectorAll('script[src*="ads"], script[src*="doubleclick"], script[src*="googlesyndication"]');
+        adScripts.forEach(script => script.remove());
+        
+        // Bloquear elementos de anuncios en toda la página
+        const adSelectors = [
+            '[class*="ad-"]', '[id*="ad-"]',
+            '[class*="ads"]', '[id*="ads"]',
+            '.advertisement', '.banner', '.popup',
+            'iframe[src*="doubleclick"]',
+            'iframe[src*="googlesyndication"]',
+            'div[class*="adsense"]'
+        ];
+        
+        adSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                if (el.id !== 'embedIframe' && !el.classList.contains('preframe')) {
+                    el.style.display = 'none !important';
+                    el.remove();
+                }
+            });
+        });
+        
+        // Inyectar CSS anti-anuncios dinámicamente
+        if (!document.getElementById('anti-ads-css')) {
+            const antiAdsCss = document.createElement('style');
+            antiAdsCss.id = 'anti-ads-css';
+            antiAdsCss.innerHTML = `
+                iframe[src*="doubleclick"],
+                iframe[src*="googlesyndication"],
+                iframe[src*="googleadservices"],
+                [class*="ad-"]:not(#embedIframe):not(.preframe),
+                [id*="ad-"]:not(#embedIframe):not(.preframe) {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    height: 0 !important;
+                    width: 0 !important;
+                }
+            `;
+            document.head.appendChild(antiAdsCss);
+        }
+        
+        console.log('🛡️ Bloqueo agresivo de anuncios aplicado');
+    }
+    
     // Función para cambiar de canal
     function changeChannel(url, canal) {
         const iframe = $("#embedIframe");
-        const loadingMessage = $('<div class="loading-message">Cargando canal sin anuncios...</div>');
+        const loadingMessage = $('<div class="loading-message">🛡️ Cargando canal sin anuncios...</div>');
         
         // Mostrar mensaje de carga
         iframe.parent().append(loadingMessage);
@@ -296,21 +345,97 @@ $(document).ready(function() {
         if (isMobile) {
             console.log('📱 Optimizando URL para móvil:', url);
             
-            // Agregar parámetros específicos para móviles
+            // Agregar parámetros específicos para móviles y autoplay
             const separator = url.includes('?') ? '&' : '?';
-            optimizedUrl = url + separator + 'mobile=1&autoplay=1&muted=0';
+            optimizedUrl = url + separator + 'mobile=1&autoplay=1&muted=0&preload=auto&controls=1';
             
             // Para iOS, intentar URLs alternativas si es necesario
             if (isIOS && url.includes('la14hd.com')) {
                 // Algunas URLs funcionan mejor en iOS con diferentes parámetros
                 optimizedUrl = url.replace('canales.php', 'canal.php');
+                optimizedUrl += (optimizedUrl.includes('?') ? '&' : '?') + 'playsInline=1&webkit-playsinline=1';
             }
+        } else {
+            // Para desktop también agregar autoplay
+            const separator = url.includes('?') ? '&' : '?';
+            optimizedUrl = url + separator + 'autoplay=1&muted=0&preload=auto';
         }
         
-        // Cambiar URL del iframe
-        iframe.attr('src', optimizedUrl);
-        currentUrl = optimizedUrl;
-        currentCanal = canal;
+        // CLAVE: Configurar iframe para autoplay antes de cambiar URL
+        iframe.attr({
+            'allow': 'autoplay; encrypted-media; fullscreen; picture-in-picture',
+            'allowfullscreen': 'true',
+            'autoplay': 'true'
+        });
+        
+        // Cambiar URL del iframe con timestamp para evitar cache
+        const finalUrl = optimizedUrl + (optimizedUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+        
+        // ESTRATEGIA MEJORADA: Simular interacción antes del cambio de URL
+        setTimeout(function() {
+            // Crear evento de mouse para activar autoplay
+            const iframe = document.getElementById('embedIframe');
+            if (iframe) {
+                const mouseEvent = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
+                iframe.dispatchEvent(mouseEvent);
+                
+                // También simular touch para móviles
+                if (isMobile) {
+                    const touchEvent = new TouchEvent('touchstart', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    });
+                    iframe.dispatchEvent(touchEvent);
+                }
+            }
+        }, 100);
+        
+        // Cambiar URL después de la interacción simulada
+        setTimeout(function() {
+            iframe.attr('src', finalUrl);
+            currentUrl = finalUrl;
+            currentCanal = canal;
+            console.log(`🎬 URL cargada con autoplay: ${finalUrl}`);
+        }, 200);
+        
+        // NUEVA ESTRATEGIA: Forzar autoplay mediante JavaScript injection
+        setTimeout(function() {
+            try {
+                const iframeDoc = iframe[0].contentDocument || iframe[0].contentWindow.document;
+                if (iframeDoc) {
+                    // Inyectar script para forzar autoplay
+                    const autoplayScript = iframeDoc.createElement('script');
+                    autoplayScript.innerHTML = `
+                        (function() {
+                            setTimeout(function() {
+                                const videos = document.querySelectorAll('video');
+                                videos.forEach(video => {
+                                    video.muted = false;
+                                    video.autoplay = true;
+                                    video.play().catch(e => console.log('Autoplay prevented:', e));
+                                });
+                                
+                                // También buscar iframes internos
+                                const iframes = document.querySelectorAll('iframe');
+                                iframes.forEach(frame => {
+                                    try {
+                                        frame.click();
+                                    } catch(e) {}
+                                });
+                            }, 1000);
+                        })();
+                    `;
+                    iframeDoc.head.appendChild(autoplayScript);
+                }
+            } catch (e) {
+                console.log('ℹ️ No se pudo inyectar autoplay script (normal en cross-origin)');
+            }
+        }, 2000);
         
         // Timeout más largo para móviles
         const cleanupTimeout = isMobile ? 5000 : 3000;
@@ -319,15 +444,70 @@ $(document).ready(function() {
         // Limpiar anuncios después de cargar
         setTimeout(function() {
             cleanIframeAds();
-            loadingMessage.remove();
+            loadingMessage.fadeOut();
+            // Mostrar mensaje de éxito
+            const successMessage = $('<div class="success-message">✅ Reproduciendo sin anuncios</div>');
+            iframe.parent().append(successMessage);
+            setTimeout(() => successMessage.fadeOut(), 3000);
         }, cleanupTimeout);
         
-        // Limpieza adicional
+        // Limpieza adicional y más agresiva
         setTimeout(function() {
             cleanIframeAds();
+            // Bloqueo adicional de anuncios
+            blockAdsAggressively();
+            // NUEVO: Forzar autoplay con clics periódicos
+            forceAutoplayWithClicks();
         }, additionalTimeout);
         
-        console.log(`Canal cambiado a: ${canal} - URL optimizada: ${optimizedUrl}`);
+        console.log(`Canal cambiado a: ${canal} - URL optimizada con autoplay: ${finalUrl}`);
+    }
+    
+    // Función para forzar autoplay mediante clics automáticos periódicos
+    function forceAutoplayWithClicks() {
+        let clickAttempts = 0;
+        const maxAttempts = 10;
+        
+        const autoClickInterval = setInterval(function() {
+            const iframe = document.getElementById('embedIframe');
+            
+            if (iframe && clickAttempts < maxAttempts) {
+                // Simular click en diferentes posiciones del iframe
+                const rect = iframe.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const clickEvent = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: centerX,
+                    clientY: centerY
+                });
+                
+                iframe.dispatchEvent(clickEvent);
+                
+                // También intentar con el elemento padre
+                const container = iframe.parentElement;
+                if (container) {
+                    container.click();
+                }
+                
+                clickAttempts++;
+                console.log(`🔄 Intento de autoplay ${clickAttempts}/${maxAttempts}`);
+                
+                // Si llegamos al máximo, mostrar mensaje
+                if (clickAttempts >= maxAttempts) {
+                    clearInterval(autoClickInterval);
+                    console.log('ℹ️ Si el video no reproduce automáticamente, haz click en él');
+                }
+            } else {
+                clearInterval(autoClickInterval);
+            }
+        }, 2000); // Cada 2 segundos
+        
+        // Limpiar interval después de 30 segundos
+        setTimeout(() => clearInterval(autoClickInterval), 30000);
     }
     
     // Función para recargar el canal actual
@@ -343,7 +523,7 @@ $(document).ready(function() {
         console.log('Canal recargado:', newUrl);
     }
     
-    // Event listener para botones de canal
+        // Event listener para botones de canal
     $('.canal-btn').on('click', function() {
         const button = $(this);
         const url = button.data('url');
@@ -355,14 +535,56 @@ $(document).ready(function() {
         // Agregar clase active al botón clickeado
         button.addClass('active');
         
-        // Cambiar canal
-        changeChannel(url, canal);
+        // IMPORTANTE: Simular múltiples clics para asegurar autoplay
+        simulateUserInteraction();
+        
+        // Cambiar canal después de la interacción
+        setTimeout(function() {
+            changeChannel(url, canal);
+        }, 100);
         
         // Actualizar título según el canal
         updateTitle(canal);
     });
     
-    // Event listener para botón de recarga
+    // Función para simular interacción del usuario
+    function simulateUserInteraction() {
+        const iframe = document.getElementById('embedIframe');
+        
+        if (iframe) {
+            // Múltiples eventos para máxima compatibilidad
+            const events = ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'];
+            
+            events.forEach(eventType => {
+                const event = new Event(eventType, {
+                    bubbles: true,
+                    cancelable: true
+                });
+                iframe.dispatchEvent(event);
+            });
+            
+            // También para móviles
+            if (isMobile) {
+                const touch = new Touch({
+                    identifier: Date.now(),
+                    target: iframe,
+                    clientX: 100,
+                    clientY: 100
+                });
+                
+                const touchEvent = new TouchEvent('touchstart', {
+                    touches: [touch],
+                    targetTouches: [touch],
+                    changedTouches: [touch],
+                    bubbles: true
+                });
+                
+                iframe.dispatchEvent(touchEvent);
+            }
+            
+            console.log('🖱️ Interacciones simuladas para activar autoplay');
+        }
+    }    // Event listener para botón de recarga
     $('#btnIframe').on('click', function() {
         reloadChannel();
         
@@ -646,4 +868,25 @@ $(document).ready(function() {
         console.log('=== FIN DIAGNÓSTICO ===');
     }
     
+    // INICIALIZACIÓN AUTOMÁTICA CON AUTOPLAY
+    console.log('🚀 Iniciando reproducción automática...');
+    
+    // Esperar un momento para que todo se cargue
+    setTimeout(function() {
+        // Aplicar bloqueo agresivo desde el inicio
+        blockAdsAggressively();
+        
+        // Simular click en el canal activo para activar autoplay
+        const activeChannel = $('.canal-btn.active');
+        if (activeChannel.length > 0) {
+            const url = activeChannel.data('url');
+            const canal = activeChannel.data('canal');
+            
+            console.log('🎬 Activando autoplay para canal inicial:', canal);
+            changeChannel(url, canal);
+        }
+    }, 2000);
+    
+    console.log('✅ TodoBalon inicializado con sistema anti-anuncios y autoplay');
+
 });

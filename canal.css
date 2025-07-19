@@ -469,5 +469,46 @@ h2.title {
 .content-text {
     font-size: 1.125rem; 
     line-height: 1.6;
-    text-align: left; }
+    text-align: left; 
+}
+
+/* Mensajes de carga y éxito para autoplay */
+.loading-message, .success-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: fadeInScale 0.3s ease-in-out;
+}
+
+.success-message {
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Posicionamiento relativo para el contenedor del iframe */
+.preframe {
+    position: relative;
+}
 
