@@ -12,23 +12,11 @@
     <meta name="HandheldFriendly" content="true">
     
     <!-- SEGURIDAD Y BLOQUEADOR DE ANUNCIOS -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://la12hd.com https://la14hd.com https://code.jquery.com https://cdnjs.cloudflare.com data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://cdnjs.cloudflare.com https://la12hd.com https://la14hd.com; style-src 'self' 'unsafe-inline' https://la12hd.com https://la14hd.com; img-src 'self' data: blob: https://la12hd.com https://la14hd.com; frame-src https://la12hd.com https://la14hd.com; connect-src 'self' https://la12hd.com https://la14hd.com wss: ws:; media-src 'self' https://la12hd.com https://la14hd.com blob: data:; object-src 'none'; base-uri 'self';">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow">
     
-    <!-- BLOQUEO ADICIONAL DE ANUNCIOS -->
+    <!-- OPTIMIZACIONES MÓVILES -->
     <style>
-        /* Bloquear solo elementos específicos de anuncios */
-        .advertisement, .ads, .ad-container, .banner-ad, .popup-ad,
-        [class*="google-ad"], [id*="google-ad"],
-        iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
-        iframe[src*="googleadservices"], iframe[src*="amazon-adsystem"] {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0 !important;
-            width: 0 !important;
-        }
-        
         /* Mejorar experiencia móvil */
         body {
             overflow-x: hidden;
@@ -39,6 +27,8 @@
         #embedIframe {
             border: none !important;
             outline: none !important;
+            width: 100% !important;
+            height: 100% !important;
         }
     </style>
     
@@ -71,49 +61,6 @@
       }
     }
   </script>
-
-    <!-- BLOQUEADOR DE ANUNCIOS AVANZADO -->
-    <script>
-        // Bloquear anuncios y popups pero permitir reproducción
-        (function() {
-            'use strict';
-            
-            // Bloquear solo popups maliciosos, no todos los window.open
-            const originalOpen = window.open;
-            window.open = function(url, name, specs) {
-                if (url && (url.includes('ad') || url.includes('popup') || url.includes('banner'))) {
-                    return null;
-                }
-                return originalOpen.call(window, url, name, specs);
-            };
-            
-            // Remover elementos de anuncios pero no afectar video
-            function removeAds() {
-                const adSelectors = [
-                    '.advertisement', '.ads', '.ad-container', '.banner-ad', '.popup-ad',
-                    '[class*="google-ad"]', '[id*="google-ad"]',
-                    'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]',
-                    'iframe[src*="googleadservices"]', 'div[id*="ad-banner"]'
-                ];
-                
-                adSelectors.forEach(selector => {
-                    try {
-                        const elements = document.querySelectorAll(selector);
-                        elements.forEach(el => {
-                            if (el && !el.id.includes('embedIframe') && !el.classList.contains('video-frame')) {
-                                el.style.display = 'none';
-                            }
-                        });
-                    } catch (e) {}
-                });
-            }
-            
-            // Ejecutar limpieza menos frecuente
-            setInterval(removeAds, 3000);
-            document.addEventListener('DOMContentLoaded', removeAds);
-            
-        })();
-    </script>
 
     <!-- JQUERY-->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" defer></script>
@@ -209,7 +156,9 @@
                 <button id="btnIframe" title="Recargar el canal actual para una mejor experiencia">
                     🔄 Recargar canal
                 </button>
-              
+                <button id="btnAdBlocker" class="active" title="Activar/Desactivar bloqueador de anuncios">
+                    🛡️ Bloqueador ON
+                </button>
             </div>
         </div>
 
