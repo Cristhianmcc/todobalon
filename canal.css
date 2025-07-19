@@ -1,0 +1,272 @@
+a{
+    text-decoration: none;
+}
+
+body {
+                display: flex; 
+                flex-direction: column; 
+                height: 100vh; 
+                justify-content: space-between;
+}
+
+.title-header
+{
+    color: #16a34a; font-size: 1.5rem; font-weight: bold;
+}
+
+.prelogo
+{
+    transition: all 0.15s ease-in-out; border: 2px solid rgba(22, 163, 74, 0.5); 
+}
+
+.logodef
+{
+    display: block; transform: translateY(0);
+}
+
+.logo2
+{
+    width: 2rem; height: 2rem;
+}
+
+footer {
+                height: 2.5rem; 
+                background-color: #1f2937; 
+                color: white; 
+                padding: 1rem 1.5rem; 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center;  
+                margin-top: auto;
+}
+
+.footer-title
+{
+    text-align: center; font-size: 0.875rem;
+}
+
+.redes
+{
+    display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem;
+}
+
+.redes > li {
+    list-style-type: none;
+}
+
+.red-item
+{
+    color: inherit; font-size: 0.875rem; transition: color 0.15s ease-in-out;
+}
+
+header {
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                padding: 0.5rem; 
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+                background-color: white;
+}
+
+.main-frame {
+    margin: 0.75rem auto 0.75rem auto; 
+    height: auto; 
+    width: 91.666667%; 
+    max-width: 66.666667%;
+}
+
+#embedIframe  {
+                width: 100%; 
+                aspect-ratio: 16/9;
+}
+
+#btnIframe {
+    background-color: aquamarine; 
+    color: BLACK; 
+    padding: 0.50rem 0.5rem; 
+    border-radius: 0.5rem; 
+    margin-top: 1rem; 
+    margin-bottom: 0.5rem; 
+    width: 100%; 
+    transition: background-color 0.3s;
+    border: none; 
+    box-shadow: none; 
+}
+
+#btnIframe:hover {
+    background-color: #15803d;
+    cursor: pointer;
+}
+
+/* Selector de Canales */
+.canal-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    max-width: 100%;
+    justify-items: center;
+}
+
+.canal-btn {
+    background-color: #f3f4f6;
+    color: #374151;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid #d1d5db;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+    max-width: 140px;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.canal-btn:hover {
+    background-color: #e5e7eb;
+    border-color: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.canal-btn.active {
+    background-color: #16a34a;
+    color: white;
+    border-color: #16a34a;
+    box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+}
+
+.canal-btn.active:hover {
+    background-color: #15803d;
+}
+
+.margin-bottom-1 {
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .canal-selector {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.5rem;
+    }
+    
+    .canal-btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .canal-selector {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .canal-btn {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.5rem;
+        max-width: none;
+    }
+}
+
+/* Mensajes de estado */
+.loading-message,
+.error-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    z-index: 100;
+    text-align: center;
+}
+
+.error-message {
+    background-color: rgba(220, 38, 38, 0.9);
+}
+
+.error-message button {
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background-color: white;
+    color: #dc2626;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.error-message button:hover {
+    background-color: #f3f4f6;
+}
+
+.subiframe
+{
+    display: flex; flex-direction: column; align-items: center; border-radius: 1rem; width: 100%; margin: 20px auto; margin-bottom: 1rem; padding: 0.25rem; background-color: #e5e7eb;
+}
+
+.preframe
+{
+    border-radius: 0.5rem; position: relative; overflow: hidden; width: 100%;
+}
+
+.centerfull
+{
+    width: 100%; text-align: center;
+}
+
+h1.title {
+    color:black; 
+    font-size: 1.75rem; 
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.canal-info {
+    margin-bottom: 1rem;
+}
+
+#canalCounter {
+    background-color: #16a34a;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+h2.title {
+    color:#16a34a; 
+    font-size: 1.3rem; 
+    font-weight: bold;
+}
+
+
+.margin-top-2
+{
+    margin-top:2.5rem;
+}
+
+@media (max-width: 768px) {
+                .main-frame {
+                                max-width: 100%;
+                }
+                #embedIframe  {
+                                
+                                width: 100%; 
+                }
+}
+
+
+
+.content-text {
+    font-size: 1.125rem; 
+    line-height: 1.6;
+    text-align: left; }
+
