@@ -2,11 +2,35 @@
   functions = "netlify/functions"
   publish = "."
 
+# Redirecciones para el sistema de auth
+[[redirects]]
+  from = "/"
+  to = "/auth.html"
+  status = 200
+
+[[redirects]]
+  from = "/index"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/canales"
+  to = "/index.html"
+  status = 200
+
+# Configuración para SPA (Single Page Application)
 [[redirects]]
   from = "/*"
   to = "/auth.html"
   status = 200
-  conditions = {Role = ["admin"]}
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
 # Variables de entorno que necesitas configurar en Netlify:
 # ADMIN_PASSWORD=tu_password_super_secreto
