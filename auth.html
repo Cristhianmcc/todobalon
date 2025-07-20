@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TodoBalon - Acceso Autorizado</title>
+    <link rel="stylesheet" href="canal.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .auth-box {
+            background: linear-gradient(145deg, 
+                rgba(20, 20, 20, 0.95) 0%, 
+                rgba(30, 30, 30, 0.9) 50%, 
+                rgba(25, 25, 25, 0.95) 100%
+            );
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                inset 0 2px 8px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(100, 100, 150, 0.3);
+            backdrop-filter: blur(20px);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+        
+        .auth-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            background: linear-gradient(135deg, 
+                rgba(100, 100, 150, 0.8) 0%, 
+                rgba(80, 80, 130, 0.9) 100%
+            );
+            color: #ffffff;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 100, 150, 0.3);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(120, 120, 180, 0.6);
+            box-shadow: 0 0 10px rgba(120, 120, 180, 0.3);
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, 
+                rgba(100, 100, 150, 0.8) 0%, 
+                rgba(80, 80, 130, 0.9) 100%
+            );
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 100, 150, 0.4);
+        }
+        
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error-message {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            color: #e74c3c;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid rgba(39, 174, 96, 0.5);
+            color: #27ae60;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1>📺 TodoBalon</h1>
+                <p>Acceso exclusivo para usuarios autorizados</p>
+            </div>
+            
+            <!-- Pestañas -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Iniciar Sesión</button>
+                <button class="auth-tab" onclick="switchTab('register')">Registrarse</button>
+            </div>
+            
+            <!-- Mensajes de error/éxito -->
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+            
+            <!-- Formulario de Login -->
+            <div id="loginForm" class="auth-form active">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginCode">Código de Acceso</label>
+                        <input type="text" id="loginCode" placeholder="Ingrese su código de acceso" required>
+                    </div>
+                    <button type="submit" class="auth-button" id="loginButton">
+                        🔓 Acceder
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Formulario de Registro -->
+            <div id="registerForm" class="auth-form">
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="registerName">Nombre de Usuario</label>
+                        <input type="text" id="registerName" placeholder="Ingrese su nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email (opcional)</label>
+                        <input type="email" id="registerEmail" placeholder="su@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerCode">Código de Autorización</label>
+                        <input type="text" id="registerCode" placeholder="Código proporcionado por el admin" required>
+                    </div>
+                    <button type="submit" class="auth-button" id="registerButton">
+                        ✅ Registrarse
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Panel Admin -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(100, 100, 150, 0.2);">
+                <button onclick="showAdminPanel()" class="auth-button" style="background: linear-gradient(135deg, rgba(156, 39, 176, 0.8) 0%, rgba(142, 68, 173, 0.9) 100%);">
+                    🔧 Panel Admin
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="auth.js"></script>
+    <script src="auth-local.js"></script>
+</body>
+</html>

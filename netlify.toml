@@ -1,0 +1,19 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/auth.html"
+  status = 200
+  conditions = {Role = ["admin"]}
+
+# Variables de entorno que necesitas configurar en Netlify:
+# ADMIN_PASSWORD=tu_password_super_secreto
+# VALID_AUTH_CODES=TB123456,TB789012,TB345678
+# REGISTERED_USERS={"ABC12345":{"name":"Usuario1","email":"user1@email.com","active":true,"registeredAt":"2025-01-01T00:00:00.000Z"}}
+
+# Para configurar las variables de entorno:
+# 1. Ve a tu sitio en Netlify
+# 2. Site Settings > Environment Variables
+# 3. Agrega las variables de arriba
