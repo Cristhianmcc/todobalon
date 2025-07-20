@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TodoBalon - Acceso Autorizado</title>
+    <title>TodoBalon - Acceso</title>
     <link rel="stylesheet" href="canal.css">
     <style>
         .auth-container {
@@ -46,41 +46,6 @@
         .auth-header p {
             color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
-        }
-        
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.3);
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .auth-tab.active {
-            background: linear-gradient(135deg, 
-                rgba(100, 100, 150, 0.8) 0%, 
-                rgba(80, 80, 130, 0.9) 100%
-            );
-            color: #ffffff;
-        }
-        
-        .auth-form {
-            display: none;
-        }
-        
-        .auth-form.active {
-            display: block;
         }
         
         .form-group {
@@ -134,12 +99,6 @@
             box-shadow: 0 6px 20px rgba(100, 100, 150, 0.4);
         }
         
-        .auth-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
         .error-message {
             background: rgba(231, 76, 60, 0.2);
             border: 1px solid rgba(231, 76, 60, 0.5);
@@ -149,32 +108,6 @@
             margin-bottom: 20px;
             display: none;
         }
-        
-        .success-message {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid rgba(39, 174, 96, 0.5);
-            color: #27ae60;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid #ffffff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -182,67 +115,94 @@
         <div class="auth-box">
             <div class="auth-header">
                 <h1>📺 TodoBalon</h1>
-                <p>Acceso exclusivo para usuarios autorizados</p>
+                <p>Sistema de acceso simplificado</p>
             </div>
             
-            <!-- Pestañas -->
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchTab('login')">Iniciar Sesión</button>
-                <button class="auth-tab" onclick="switchTab('register')">Registrarse</button>
-            </div>
-            
-            <!-- Mensajes de error/éxito -->
             <div id="errorMessage" class="error-message"></div>
-            <div id="successMessage" class="success-message"></div>
             
-            <!-- Formulario de Login -->
-            <div id="loginForm" class="auth-form active">
-                <form onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label for="loginCode">Código de Acceso</label>
-                        <input type="text" id="loginCode" placeholder="Ingrese su código de acceso" required>
-                    </div>
-                    <button type="submit" class="auth-button" id="loginButton">
-                        🔓 Acceder
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Formulario de Registro -->
-            <div id="registerForm" class="auth-form">
-                <form onsubmit="handleRegister(event)">
-                    <div class="form-group">
-                        <label for="registerName">Nombre de Usuario</label>
-                        <input type="text" id="registerName" placeholder="Ingrese su nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerEmail">Email (opcional)</label>
-                        <input type="email" id="registerEmail" placeholder="su@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="registerCode">Código de Autorización</label>
-                        <input type="text" id="registerCode" placeholder="Código proporcionado por el admin" required>
-                    </div>
-                    <button type="submit" class="auth-button" id="registerButton">
-                        ✅ Registrarse
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Acceso Premium -->
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(100, 100, 150, 0.2);">
-               <!-- Reemplazar el botón actual por: -->
-<button onclick="window.location.href='admin.html'" 
-        style="background: linear-gradient(135deg, #9f4f96 0%, #764ba2 100%); 
-               color: white; border: none; padding: 15px 30px; 
-               border-radius: 10px; cursor: pointer; font-weight: bold;">
-    ⚡ Acceso Premium
-</button>
-            </div>
+            <form onsubmit="handleAccess(event)">
+                <div class="form-group">
+                    <label for="accessCode">Código de Acceso</label>
+                    <input type="text" id="accessCode" placeholder="Código de usuario o contraseña admin" required>
+                    <small style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin-top: 5px; display: block;">
+                        💡 Si eres admin, usa tu contraseña. Si eres usuario, usa el código que te dieron.
+                    </small>
+                </div>
+                <button type="submit" class="auth-button">
+                    🔓 Acceder a TodoBalon
+                </button>
+            </form>
         </div>
     </div>
     
-    <script src="auth.js"></script>
-    
+    <script>
+        // Configuración simple
+        const ADMIN_PASSWORD = 'todobalon2025';
+        const VALID_CODES = ['TB123456', 'TB789012', 'TB345678'];
+
+        async function handleAccess(event) {
+            event.preventDefault();
+            
+            const code = document.getElementById('accessCode').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // Ocultar errores previos
+            errorDiv.style.display = 'none';
+            
+            if (!code) {
+                showError('Por favor ingresa un código');
+                return;
+            }
+            
+            // Verificar si es admin
+            if (code === ADMIN_PASSWORD) {
+                // Admin: guardar sesión especial y redirigir
+                localStorage.setItem('todobalon_session', JSON.stringify({
+                    type: 'admin',
+                    expires: new Date().getTime() + (24 * 60 * 60 * 1000)
+                }));
+                
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Verificar si es código de usuario válido
+            if (VALID_CODES.includes(code)) {
+                // Usuario: guardar sesión normal y redirigir
+                localStorage.setItem('todobalon_session', JSON.stringify({
+                    type: 'user',
+                    code: code,
+                    expires: new Date().getTime() + (24 * 60 * 60 * 1000)
+                }));
+                
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Código inválido
+            showError('Código de acceso inválido. Contacta al administrador.');
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // Verificar si ya está logueado
+        window.addEventListener('DOMContentLoaded', function() {
+            const session = localStorage.getItem('todobalon_session');
+            if (session) {
+                try {
+                    const data = JSON.parse(session);
+                    if (data.expires > new Date().getTime()) {
+                        window.location.href = 'index.html';
+                    }
+                } catch(e) {
+                    localStorage.removeItem('todobalon_session');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
