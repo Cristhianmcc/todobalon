@@ -6,13 +6,16 @@ class LocalAuthSystem {
         // Configuración local (cambiar según necesites)
         this.config = {
             adminPassword: 'admin123',
-            validAuthCodes: ['TB123456', 'TB789012', 'TB345678', 'TBDEMO01'],
+            validAuthCodes: ['TB123456', 'TB789012', 'TB345678', 'TBDEMO01', 'TBM4WHTZ'],
             registeredUsers: this.getRegisteredUsers()
         };
         
         console.log('🔧 Sistema de Auth Local Iniciado');
         console.log('📝 Códigos válidos:', this.config.validAuthCodes);
         console.log('👤 Usuarios registrados:', Object.keys(this.config.registeredUsers));
+        
+        // Registrar globalmente para que auth.js pueda acceder
+        window.localAuth = this;
     }
     
     getRegisteredUsers() {
@@ -24,12 +27,33 @@ class LocalAuthSystem {
                 email: 'demo@todobalon.com',
                 active: true,
                 registeredAt: new Date().toISOString()
+            },
+            'TBM4WHTZ': {
+                name: 'Usuario Autorizado',
+                email: 'user@todobalon.com',
+                active: true,
+                registeredAt: new Date().toISOString()
             }
         };
     }
     
     saveRegisteredUsers() {
         localStorage.setItem('todobalon_registered_users', JSON.stringify(this.config.registeredUsers));
+    }
+    
+    async handleRequest(endpoint, data) {
+        console.log('🔄 Procesando request local:', endpoint, data);
+        
+        switch(endpoint) {
+            case 'auth-login':
+                return await this.login(data.accessCode);
+            case 'auth-register':
+                return await this.register(data);
+            case 'auth-generate':
+                return await this.generateCode(data.adminPassword);
+            default:
+                throw new Error(`Endpoint no soportado: ${endpoint}`);
+        }
     }
     
     async login(accessCode) {
@@ -55,7 +79,8 @@ class LocalAuthSystem {
         };
     }
     
-    async register(name, email, authCode) {
+    async register(data) {
+        const { name, email, authCode } = data;
         console.log('📝 Intentando registro:', { name, email, authCode });
         
         // Simular delay de red
@@ -66,7 +91,7 @@ class LocalAuthSystem {
         }
         
         // Generar código de acceso único
-        const accessCode = this.generateAccessCode();
+        let accessCode = this.generateAccessCode();
         
         // Verificar que no exista
         while (this.config.registeredUsers[accessCode]) {
@@ -94,6 +119,7 @@ class LocalAuthSystem {
                 email: email?.trim() || ''
             }
         };
+    }
     }
     
     async generateCode(adminPassword) {
@@ -209,6 +235,15 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
 if (window.location.pathname.includes('auth.html')) {
     console.log('🎮 DATOS DE PRUEBA:');
     console.log('🔐 Contraseña Admin: admin123');
-    console.log('🎫 Códigos de autorización válidos: TB123456, TB789012, TB345678, TBDEMO01');
+    console.log('🎫 Códigos de autorización válidos: TB123456, TB789012, TB345678, TBDEMO01, TBM4WHTZ');
     console.log('🔑 Usuario demo: DEMO2025');
+    console.log('🔑 Tu código: TBM4WHTZ');
 }
+
+// Inicializar sistema local cuando se carga el script
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
+        console.log('🏠 Inicializando sistema local...');
+        new LocalAuthSystem();
+    }
+});
