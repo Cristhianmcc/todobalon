@@ -90,102 +90,212 @@
 </head>
 
 <body>
-    <header>
-        <a href="/" class="title-header">TodoBalon</a>
+    <!-- <header>
+       
+    </header> -->
+
+    <main class="main-frame">
+        <div class="centerfull">
+            <h1 class="title">Canales en vivo</h1>
+            
+             <a href="/" class="title-header">TodoBalon</a>
         <div></div>
         <div class="prelogo">
             <a href="/" class="logodef">
                 <img src="" alt="" class="">
             </a>
         </div>
-    </header>
-
-    <main class="main-frame">
-        <div class="centerfull">
-            <h1 class="title">Canales en vivo</h1>
-            <!-- <div class="canal-info">
-                <span id="canalCounter">Canal 1 de 14</span>
-            </div> -->
         </div>
 
-        <!-- Selector de Canales -->
-        <div class="centerfull margin-bottom-1">
-            <div class="canal-selector">
-                <button class="canal-btn active" data-canal="dsports" data-url="https://la12hd.com/vivo/canal.php?stream=dsports">
-                    DirecTV Sports
-                </button>
-                <button class="canal-btn" data-canal="dsports2" data-url="https://la14hd.com/vivo/canal.php?stream=dsports2">
-                    DirecTV Sports 2
-                </button>
-                <button class="canal-btn" data-canal="dsportsplus" data-url="https://la14hd.com/vivo/canal.php?stream=dsportsplus">
-                    DirecTV Sports+
-                </button>
-                <button class="canal-btn" data-canal="liga1max" data-url="https://la14hd.com/vivo/canal.php?stream=liga1max">
-                    Liga1 Max
-                </button>
-                <button class="canal-btn" data-canal="espn" data-url="https://la14hd.com/vivo/canal.php?stream=espn">
-                    ESPN
-                </button>
-                <button class="canal-btn" data-canal="espn2" data-url="https://la14hd.com/vivo/canal.php?stream=espn2">
-                    ESPN 2
-                </button>
-                <button class="canal-btn" data-canal="espn3" data-url="https://la14hd.com/vivo/canal.php?stream=espn3">
-                    ESPN 3
-                </button>
-                <button class="canal-btn" data-canal="espn4" data-url="https://la14hd.com/vivo/canal.php?stream=espn4">
-                    ESPN 4
-                </button>
-                <button class="canal-btn" data-canal="espn5" data-url="https://la14hd.com/vivo/canal.php?stream=espn5">
-                    ESPN 5
-                </button>
-                <button class="canal-btn" data-canal="espn6" data-url="https://la14hd.com/vivo/canal.php?stream=espn6">
-                    ESPN 6
-                </button>
-                <button class="canal-btn" data-canal="espn7" data-url="https://la14hd.com/vivo/canal.php?stream=espn7">
-                    ESPN 7
-                </button>
-                <button class="canal-btn" data-canal="tycsports" data-url="https://la14hd.com/vivo/canales.php?stream=tycsports">
-                    TyC Sports
-                </button>
-                <button class="canal-btn" data-canal="espnpremium" data-url="https://la14hd.com/vivo/canales.php?stream=espnpremium">
-                    ESPN Premium
-                </button>
-                <button class="canal-btn" data-canal="tntsports" data-url="https://la14hd.com/vivo/canales.php?stream=tntsports">
-                    TNT Sports
-                </button>
+        <!-- Layout de dos columnas: Reproductor + Canales -->
+        <div class="content-layout">
+            <!-- Reproductor de Video (Columna Principal) -->
+            <div class="video-section">
+                <div class="subiframe">
+                    <div class="preframe">
+                        <iframe allowfullscreen="true" 
+                            scrolling="no" 
+                            src="https://la12hd.com/vivo/canal.php?stream=dsports&autoplay=1&preload=auto&muted=0"
+                            allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *; accelerometer *; gyroscope *" 
+                            width="100%" 
+                            height="100%" 
+                            frameborder="0" 
+                            id="embedIframe" 
+                            loading="eager"
+                            sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-top-navigation"
+                            referrerpolicy="no-referrer"
+                            autoplay="true"
+                            onload="this.click(); setTimeout(() => this.click(), 1000); setTimeout(() => this.click(), 3000);">
+                        </iframe>
+                    </div>
+                    <div class="video-controls">
+                        <div class="current-channel">
+                            <span id="currentChannelName">📺 DirecTV Sports</span>
+                        </div>
+                        <div class="control-buttons">
+                            <button id="btnIframe">
+                                🔄 Recargar
+                            </button>
+                            <button id="btnAdBlocker" class="ad-blocker-btn">
+                                🛡️ Bloqueador ON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Canales (Columna Lateral) -->
+            <div class="channels-section">
+                <div class="channels-header">
+                    <h3>⚽ Seleccionar Canal</h3>
+                    <div class="channel-search">
+                        <input type="text" id="channelSearch" placeholder="🔍 Buscar canal...">
+                    </div>
+                </div>
+                
+                <div class="channels-grid">
+                    <!-- Canal 1: DirecTV Sports -->
+                    <button class="channel-card active" data-canal="dsports" data-url="https://la12hd.com/vivo/canal.php?stream=dsports">
+                        <div class="channel-number">1</div>
+                        <div class="channel-info">
+                            <div class="channel-name">DirecTV Sports</div>
+                            <div class="channel-category">📺 Sports</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 2: DirecTV Sports 2 -->
+                    <button class="channel-card" data-canal="dsports2" data-url="https://la14hd.com/vivo/canal.php?stream=dsports2">
+                        <div class="channel-number">2</div>
+                        <div class="channel-info">
+                            <div class="channel-name">DirecTV Sports 2</div>
+                            <div class="channel-category">📺 Sports</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 3: DirecTV Sports+ -->
+                    <button class="channel-card" data-canal="dsportsplus" data-url="https://la14hd.com/vivo/canal.php?stream=dsportsplus">
+                        <div class="channel-number">3</div>
+                        <div class="channel-info">
+                            <div class="channel-name">DirecTV Sports+</div>
+                            <div class="channel-category">📺 Sports</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 4: Liga1 Max -->
+                    <button class="channel-card" data-canal="liga1max" data-url="https://la14hd.com/vivo/canal.php?stream=liga1max">
+                        <div class="channel-number">4</div>
+                        <div class="channel-info">
+                            <div class="channel-name">Liga1 Max</div>
+                            <div class="channel-category">📺 Liga</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 5: ESPN -->
+                    <button class="channel-card" data-canal="espn" data-url="https://la14hd.com/vivo/canal.php?stream=espn">
+                        <div class="channel-number">5</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 6: ESPN 2 -->
+                    <button class="channel-card" data-canal="espn2" data-url="https://la14hd.com/vivo/canal.php?stream=espn2">
+                        <div class="channel-number">6</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN 2</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 7: ESPN 3 -->
+                    <button class="channel-card" data-canal="espn3" data-url="https://la14hd.com/vivo/canal.php?stream=espn3">
+                        <div class="channel-number">7</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN 3</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 8: ESPN 4 -->
+                    <button class="channel-card" data-canal="espn4" data-url="https://la14hd.com/vivo/canal.php?stream=espn4">
+                        <div class="channel-number">8</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN 4</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 9: ESPN 5 -->
+                    <button class="channel-card" data-canal="espn5" data-url="https://la14hd.com/vivo/canal.php?stream=espn5">
+                        <div class="channel-number">9</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN 5</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 10: ESPN 6 -->
+                    <button class="channel-card" data-canal="espn6" data-url="https://la14hd.com/vivo/canal.php?stream=espn6">
+                        <div class="channel-number">10</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN 6</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 11: ESPN 7 -->
+                    <button class="channel-card" data-canal="espn7" data-url="https://la14hd.com/vivo/canal.php?stream=espn7">
+                        <div class="channel-number">11</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN 7</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 12: ESPN Premium -->
+                    <button class="channel-card" data-canal="espnpremium" data-url="https://la14hd.com/vivo/canales.php?stream=espnpremium">
+                        <div class="channel-number">12</div>
+                        <div class="channel-info">
+                            <div class="channel-name">ESPN Premium</div>
+                            <div class="channel-category">🏆 ESPN</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 13: TyC Sports -->
+                    <button class="channel-card" data-canal="tycsports" data-url="https://la14hd.com/vivo/canales.php?stream=tycsports">
+                        <div class="channel-number">13</div>
+                        <div class="channel-info">
+                            <div class="channel-name">TyC Sports</div>
+                            <div class="channel-category">⭐ Premium</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+
+                    <!-- Canal 14: TNT Sports -->
+                    <button class="channel-card" data-canal="tntsports" data-url="https://la14hd.com/vivo/canales.php?stream=tntsports">
+                        <div class="channel-number">14</div>
+                        <div class="channel-info">
+                            <div class="channel-name">TNT Sports</div>
+                            <div class="channel-category">⭐ Premium</div>
+                        </div>
+                        <div class="channel-status">🟢</div>
+                    </button>
+                </div>
             </div>
         </div>
-
-        <div class="subiframe">
-            <div class="preframe">
-                <iframe allowfullscreen="true" 
-                    scrolling="no" 
-                    src="https://la12hd.com/vivo/canal.php?stream=dsports&autoplay=1&preload=auto&muted=0"
-                    allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *; accelerometer *; gyroscope *" 
-                    width="100%" 
-                    height="100%" 
-                    frameborder="0" 
-                    id="embedIframe" 
-                    loading="eager"
-                    sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-top-navigation"
-                    referrerpolicy="no-referrer"
-                    autoplay="true"
-                    onload="this.click(); setTimeout(() => this.click(), 1000); setTimeout(() => this.click(), 3000);">
-                </iframe>
-            </div>
-            <div class="centerfull">
-                <button id="btnIframe">
-                    Recargar canal
-                </button>
-                <button id="btnAdBlocker" class="ad-blocker-btn">
-                    🛡️ Bloqueador ON
-                </button>
-            </div>
-        </div>
-
-      
-        </div>
-
     </main>
 
    

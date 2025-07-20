@@ -1,6 +1,9 @@
 $(document).ready(function() {
     
-    // Variables globales
+            // 4. Configurar touch events para mejor interacción
+        setupTouchEvents();
+        
+        // 5. Reducir frecuencia de limpieza de anuncios en móvilesariables globales
     let currentUrl = "https://la12hd.com/vivo/canal.php?stream=dsports";
     let currentCanal = "dsports";
     
@@ -71,7 +74,7 @@ $(document).ready(function() {
     // Función para configurar eventos táctiles
     function setupTouchEvents() {
         // Mejorar respuesta táctil en botones
-        $('.canal-btn, #btnIframe, .ad-blocker-btn').on('touchstart', function() {
+        $('.channel-card, #btnIframe, .ad-blocker-btn').on('touchstart', function() {
             $(this).addClass('touch-active');
         }).on('touchend touchcancel', function() {
             $(this).removeClass('touch-active');
@@ -523,17 +526,25 @@ $(document).ready(function() {
         console.log('Canal recargado:', newUrl);
     }
     
-        // Event listener para botones de canal
-    $('.canal-btn').on('click', function() {
+    // Event listener para tarjetas de canal
+    $('.channel-card').on('click', function() {
         const button = $(this);
         const url = button.data('url');
         const canal = button.data('canal');
         
-        // Remover clase active de todos los botones
-        $('.canal-btn').removeClass('active');
+        // Remover clase active de todas las tarjetas
+        $('.channel-card').removeClass('active');
         
-        // Agregar clase active al botón clickeado
+        // Agregar clase active a la tarjeta clickeada
         button.addClass('active');
+        
+        // Agregar indicador de carga
+        button.addClass('loading');
+        
+        // Actualizar nombre del canal actual
+        const channelName = button.find('.channel-name').text();
+        const channelCategory = button.find('.channel-category').text();
+        $('#currentChannelName').text(`${channelCategory} ${channelName}`);
         
         // IMPORTANTE: Simular múltiples clics para asegurar autoplay
         simulateUserInteraction();
@@ -541,10 +552,33 @@ $(document).ready(function() {
         // Cambiar canal después de la interacción
         setTimeout(function() {
             changeChannel(url, canal);
+            // Remover indicador de carga
+            button.removeClass('loading');
         }, 100);
         
         // Actualizar título según el canal
         updateTitle(canal);
+    });
+    
+    // Funcionalidad de búsqueda de canales
+    $('#channelSearch').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        
+        $('.channel-card').each(function() {
+            const channelName = $(this).find('.channel-name').text().toLowerCase();
+            const channelCategory = $(this).find('.channel-category').text().toLowerCase();
+            
+            if (channelName.includes(searchTerm) || channelCategory.includes(searchTerm)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+    
+    // Limpiar búsqueda al hacer clic en el campo
+    $('#channelSearch').on('focus', function() {
+        $(this).select();
     });
     
     // Función para simular interacción del usuario
@@ -767,9 +801,9 @@ $(document).ready(function() {
         };
         
         if (keyMappings[e.key]) {
-            $(`.canal-btn[data-canal="${keyMappings[e.key]}"]`).click();
+            $(`.channel-card[data-canal="${keyMappings[e.key]}"]`).click();
         } else if (additionalMappings[e.key.toLowerCase()]) {
-            $(`.canal-btn[data-canal="${additionalMappings[e.key.toLowerCase()]}"]`).click();
+            $(`.channel-card[data-canal="${additionalMappings[e.key.toLowerCase()]}"]`).click();
         }
         
         // Navegación con flechas
@@ -789,7 +823,7 @@ $(document).ready(function() {
         if (newIndex < 0) newIndex = channels.length - 1;
         if (newIndex >= channels.length) newIndex = 0;
         
-        $(`.canal-btn[data-canal="${channels[newIndex]}"]`).click();
+        $(`.channel-card[data-canal="${channels[newIndex]}"]`).click();
     }
     
     // Mostrar atajos de teclado al usuario (opcional)
@@ -877,7 +911,7 @@ $(document).ready(function() {
         blockAdsAggressively();
         
         // Simular click en el canal activo para activar autoplay
-        const activeChannel = $('.canal-btn.active');
+        const activeChannel = $('.channel-card.active');
         if (activeChannel.length > 0) {
             const url = activeChannel.data('url');
             const canal = activeChannel.data('canal');
