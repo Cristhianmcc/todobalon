@@ -43,8 +43,8 @@
         
         // Verificar autenticación al cargar la página
         window.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('todobalon_token'); const user = JSON.parse(localStorage.getItem('todobalon_user') || '{}'    );
-            if (!token || !user.id) {
+            const token = localStorage.getItem('todobalon_token'); const user = JSON.parse(localStorage.getItem('todobalon_user') || '{}' );
+            console.log(' Verificando autenticaci�n - Token:', !!token, 'User:', user); if (!token || !user.id) {
                 window.location.href = 'auth.html';
                 return;
             }
