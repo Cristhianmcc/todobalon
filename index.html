@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- OPTIMIZACIONES MÓVILES -->
+    <!-- OPTIMIZACIONES MÃ“VILES -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -33,15 +33,15 @@
     <meta property="og:image" content="">
     <link rel="stylesheet" href="canal.css">
     
-    <!-- VERIFICACIÓN DE AUTENTICACIÓN SIMPLE CON BACKEND -->
+    <!-- VERIFICACIÃ“N DE AUTENTICACIÃ“N SIMPLE CON BACKEND -->
     <script>
-        // Configuración de tu backend
+        // ConfiguraciÃ³n de tu backend
         const API_BASE_URL = 'https://todobalon-backend.onrender.com/api';
         
         // Variables globales
         let userSession = null;
         
-        // Verificar autenticación al cargar la página
+        // Verificar autenticaciÃ³n al cargar la pÃ¡gina
         window.addEventListener('DOMContentLoaded', function() {
             const session = localStorage.getItem('todobalon_session');
             if (!session) {
@@ -61,14 +61,14 @@
                 
                 // Si es admin, mostrar controles de admin
                 if (data.type === 'admin') {
-                    console.log('👑 Sesión de administrador activa');
+                    console.log('ðŸ‘‘ SesiÃ³n de administrador activa');
                     showAdminControls();
                 } else {
-                    console.log('👤 Sesión de usuario activa:', data.name);
+                    console.log('ðŸ‘¤ SesiÃ³n de usuario activa:', data.name);
                 }
                 
             } catch(e) {
-                console.error('Error al verificar sesión:', e);
+                console.error('Error al verificar sesiÃ³n:', e);
                 localStorage.removeItem('todobalon_session');
                 window.location.href = 'auth-final.html';
             }
@@ -81,28 +81,28 @@
             adminControls.className = 'admin-controls';
             adminControls.innerHTML = `
                 <button onclick="showAdminPanel()" class="admin-btn">
-                    👑 Generar Código
+                    ðŸ‘‘ Generar CÃ³digo
                 </button>
                 <button onclick="logout()" class="logout-btn">
-                    🚪 Salir
+                    ðŸšª Salir
                 </button>
             `;
             
-            // Insertar después del título
+            // Insertar despuÃ©s del tÃ­tulo
             const titleHeader = header.querySelector('.title-header');
             titleHeader.parentNode.insertBefore(adminControls, titleHeader.nextSibling);
         }
         
-        // Función de logout
+        // FunciÃ³n de logout
         function logout() {
             localStorage.removeItem('todobalon_session');
             window.location.href = 'auth-final.html';
         }
         
-        // Panel de admin para generar códigos
+        // Panel de admin para generar cÃ³digos
         async function showAdminPanel() {
             try {
-                // Generar código usando tu backend
+                // Generar cÃ³digo usando tu backend
                 const response = await fetch(`${API_BASE_URL}/auth/generate`, {
                     method: 'POST',
                     headers: {
@@ -119,16 +119,16 @@
                     const newCode = result.code;
                     showCodeModal(newCode);
                 } else {
-                    alert('Error al generar código: ' + (result.message || 'Error desconocido'));
+                    alert('Error al generar cÃ³digo: ' + (result.message || 'Error desconocido'));
                 }
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error de conexión al generar código');
+                alert('Error de conexiÃ³n al generar cÃ³digo');
             }
         }
         
-        // Modal para mostrar el código generado
+        // Modal para mostrar el cÃ³digo generado
         function showCodeModal(code) {
             const modal = document.createElement('div');
             modal.id = 'adminModal';
@@ -146,8 +146,8 @@
                     text-align: center; color: white;
                     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
                 ">
-                    <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">👑 Código Generado</h2>
-                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">Comparte este código con el usuario autorizado:</p>
+                    <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">ðŸ‘‘ CÃ³digo Generado</h2>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">Comparte este cÃ³digo con el usuario autorizado:</p>
                     <div style="
                         background: linear-gradient(135deg, rgba(0,255,0,0.1), rgba(0,200,100,0.1)); 
                         border: 2px solid rgba(0,255,100,0.4);
@@ -157,7 +157,7 @@
                         text-shadow: 0 0 20px rgba(0,255,100,0.5);
                     ">${code}</div>
                     <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 30px;">
-                        ⚡ El usuario puede usar este código directamente en la página de login
+                        âš¡ El usuario puede usar este cÃ³digo directamente en la pÃ¡gina de login
                     </p>
                     <div style="display: flex; gap: 15px; justify-content: center;">
                         <button onclick="copyToClipboard('${code}')" style="
@@ -165,13 +165,13 @@
                             color: white; border: none; padding: 15px 30px;
                             border-radius: 10px; cursor: pointer; font-weight: bold;
                             font-size: 16px; transition: all 0.3s ease;
-                        ">📋 Copiar Código</button>
+                        ">ðŸ“‹ Copiar CÃ³digo</button>
                         <button onclick="closeModal()" style="
                             background: linear-gradient(135deg, #dc3545, #c82333); 
                             color: white; border: none; padding: 15px 30px;
                             border-radius: 10px; cursor: pointer; font-weight: bold;
                             font-size: 16px; transition: all 0.3s ease;
-                        ">❌ Cerrar</button>
+                        ">âŒ Cerrar</button>
                     </div>
                 </div>
             `;
@@ -179,11 +179,11 @@
             document.body.appendChild(modal);
         }
         
-        // Copiar código al portapapeles
+        // Copiar cÃ³digo al portapapeles
         async function copyToClipboard(text) {
             try {
                 await navigator.clipboard.writeText(text);
-                alert('¡Código copiado al portapapeles! 📋');
+                alert('Â¡CÃ³digo copiado al portapapeles! ðŸ“‹');
             } catch (err) {
                 // Fallback para navegadores viejos
                 const textArea = document.createElement('textarea');
@@ -192,7 +192,7 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                alert('¡Código copiado! 📋');
+                alert('Â¡CÃ³digo copiado! ðŸ“‹');
             }
         }
         
@@ -261,7 +261,7 @@
       "isLiveBroadcast": true,
       "broadcaster": {
         "@type": "Organization",
-        "name": "Fútbollibre"
+        "name": "FÃºtbollibre"
       }
     }
   </script>
@@ -278,10 +278,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             const iframe = document.getElementById('embedIframe');
             
-            // Forzar interacción inmediata
+            // Forzar interacciÃ³n inmediata
             function forceInteraction() {
                 if (iframe) {
-                    // Simular múltiples eventos
+                    // Simular mÃºltiples eventos
                     ['click', 'mousedown', 'touchstart'].forEach(eventType => {
                         const event = new Event(eventType, { bubbles: true, cancelable: true });
                         iframe.dispatchEvent(event);
@@ -290,11 +290,11 @@
                     // Hacer click real en el iframe
                     iframe.click();
                     
-                    console.log('🎬 Forzando autoplay inmediato');
+                    console.log('ðŸŽ¬ Forzando autoplay inmediato');
                 }
             }
             
-            // Ejecutar inmediatamente y después de intervalos
+            // Ejecutar inmediatamente y despuÃ©s de intervalos
             forceInteraction();
             setTimeout(forceInteraction, 1000);
             setTimeout(forceInteraction, 3000);
@@ -348,14 +348,14 @@
                     </div>
                     <div class="video-controls">
                         <div class="current-channel">
-                            <span id="currentChannelName">📺 DirecTV Sports</span>
+                            <span id="currentChannelName">ðŸ“º DirecTV Sports</span>
                         </div>
                         <div class="control-buttons">
                             <button id="btnIframe">
-                                🔄 Recargar
+                                ðŸ”„ Recargar
                             </button>
                             <button id="btnAdBlocker" class="ad-blocker-btn">
-                                🛡️ Bloqueador ON
+                                ðŸ›¡ï¸ Bloqueador ON
                             </button>
                         </div>
                     </div>
@@ -365,9 +365,9 @@
             <!-- Panel de Canales (Columna Lateral) -->
             <div class="channels-section">
                 <div class="channels-header">
-                    <h3>⚽ Seleccionar Canal</h3>
+                    <h3>âš½ Seleccionar Canal</h3>
                     <div class="channel-search">
-                        <input type="text" id="channelSearch" placeholder="🔍 Buscar canal...">
+                        <input type="text" id="channelSearch" placeholder="ðŸ” Buscar canal...">
                     </div>
                 </div>
                 
@@ -377,9 +377,9 @@
                         <div class="channel-number">1</div>
                         <div class="channel-info">
                             <div class="channel-name">DirecTV Sports</div>
-                            <div class="channel-category">📺 Sports</div>
+                            <div class="channel-category">ðŸ“º Sports</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 2: DirecTV Sports 2 -->
@@ -387,9 +387,9 @@
                         <div class="channel-number">2</div>
                         <div class="channel-info">
                             <div class="channel-name">DirecTV Sports 2</div>
-                            <div class="channel-category">📺 Sports</div>
+                            <div class="channel-category">ðŸ“º Sports</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 3: DirecTV Sports+ -->
@@ -397,9 +397,9 @@
                         <div class="channel-number">3</div>
                         <div class="channel-info">
                             <div class="channel-name">DirecTV Sports+</div>
-                            <div class="channel-category">📺 Sports</div>
+                            <div class="channel-category">ðŸ“º Sports</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 4: Liga1 Max -->
@@ -407,9 +407,9 @@
                         <div class="channel-number">4</div>
                         <div class="channel-info">
                             <div class="channel-name">Liga1 Max</div>
-                            <div class="channel-category">📺 Liga</div>
+                            <div class="channel-category">ðŸ“º Liga</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 5: ESPN -->
@@ -417,9 +417,9 @@
                         <div class="channel-number">5</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 6: ESPN 2 -->
@@ -427,9 +427,9 @@
                         <div class="channel-number">6</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN 2</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 7: ESPN 3 -->
@@ -437,9 +437,9 @@
                         <div class="channel-number">7</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN 3</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 8: ESPN 4 -->
@@ -447,9 +447,9 @@
                         <div class="channel-number">8</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN 4</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 9: ESPN 5 -->
@@ -457,9 +457,9 @@
                         <div class="channel-number">9</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN 5</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 10: ESPN 6 -->
@@ -467,9 +467,9 @@
                         <div class="channel-number">10</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN 6</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 11: ESPN 7 -->
@@ -477,9 +477,9 @@
                         <div class="channel-number">11</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN 7</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 12: ESPN Premium -->
@@ -487,9 +487,9 @@
                         <div class="channel-number">12</div>
                         <div class="channel-info">
                             <div class="channel-name">ESPN Premium</div>
-                            <div class="channel-category">🏆 ESPN</div>
+                            <div class="channel-category">ðŸ† ESPN</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 13: TyC Sports -->
@@ -497,9 +497,9 @@
                         <div class="channel-number">13</div>
                         <div class="channel-info">
                             <div class="channel-name">TyC Sports</div>
-                            <div class="channel-category">⭐ Premium</div>
+                            <div class="channel-category">â­ Premium</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
 
                     <!-- Canal 14: TNT Sports -->
@@ -507,16 +507,120 @@
                         <div class="channel-number">14</div>
                         <div class="channel-info">
                             <div class="channel-name">TNT Sports</div>
-                            <div class="channel-category">⭐ Premium</div>
+                            <div class="channel-category">â­ Premium</div>
                         </div>
-                        <div class="channel-status">🟢</div>
+                        <div class="channel-status">ðŸŸ¢</div>
                     </button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- PANEL DE ADMINISTRADOR -->
+    <div id="adminPanel" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 10000; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 300px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0; color: #333;"> Panel Admin</h3>
+            <button onclick="toggleAdminPanel()" style="background: #ff4757; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;"></button>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Generar Código de Autorización:</label>
+            <input type="password" id="adminPasswordGen" placeholder="Contraseña admin" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
+            <button onclick="generateAuthCode()" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; cursor: pointer;"> Generar Código</button>
+        </div>
+        
+        <div id="generatedCode" style="display: none; padding: 10px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724; margin-top: 10px;">
+            <strong>Código generado:</strong>
+            <div id="codeDisplay" style="font-family: monospace; font-size: 16px; margin: 5px 0;"></div>
+            <button onclick="copyCode()" style="padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px;"> Copiar</button>
+        </div>
+        
+        <div id="adminAlert" style="margin-top: 10px;"></div>
+    </div>
+
+    <!-- BOTÓN FLOTANTE DE ADMIN -->
+    <button id="adminToggle" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 18px;" onclick="toggleAdminPanel()" title="Panel de Administrador"></button>
+
    
+
+<script>
+// FUNCIONES DEL PANEL DE ADMINISTRADOR
+function initializeAdminPanel() {
+    const user = JSON.parse(localStorage.getItem('todobalon_user') || '{}');
+    if (user.role === 'admin') {
+        document.getElementById('adminToggle').style.display = 'block';
+    }
+}
+
+function toggleAdminPanel() {
+    const panel = document.getElementById('adminPanel');
+    if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+async function generateAuthCode() {
+    const password = document.getElementById('adminPasswordGen').value;
+    
+    if (!password) {
+        showAdminAlert('error', ' Ingresa la contraseña de administrador');
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://todobalon-backend.onrender.com/api/auth/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ adminPassword: password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            document.getElementById('codeDisplay').textContent = data.code;
+            document.getElementById('generatedCode').style.display = 'block';
+            document.getElementById('adminPasswordGen').value = '';
+            showAdminAlert('success', ' Código generado exitosamente');
+        } else {
+            showAdminAlert('error', ' ' + data.message);
+        }
+    } catch (error) {
+        showAdminAlert('error', ' Error de conexión. Intenta nuevamente.');
+    }
+}
+
+function copyCode() {
+    const code = document.getElementById('codeDisplay').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        showAdminAlert('success', ' Código copiado al portapapeles');
+    }).catch(() => {
+        // Fallback para navegadores que no soporten clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showAdminAlert('success', ' Código copiado al portapapeles');
+    });
+}
+
+function showAdminAlert(type, message) {
+    const alertContainer = document.getElementById('adminAlert');
+    const alertClass = type === 'success' ? 'background: #d4edda; border: 1px solid #c3e6cb; color: #155724;' : 'background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24;';
+    
+    alertContainer.innerHTML = `<div style="padding: 10px; border-radius: 5px; ${alertClass} font-size: 12px; margin-top: 5px;">${message}</div>`;
+    
+    setTimeout(() => {
+        alertContainer.innerHTML = '';
+    }, 3000);
+}
+
+// Inicializar panel al cargar la página
+document.addEventListener('DOMContentLoaded', initializeAdminPanel);
+</script>
 </body>
 
 </html>

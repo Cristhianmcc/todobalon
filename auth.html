@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TodoBalon - Acceso</title>
+    <link rel="stylesheet" href="canal.css">
+    <style>
+        .auth-tabs { display: flex; margin-bottom: 30px; border-radius: 10px; overflow: hidden; background: #f0f0f0; }
+        .auth-tab { flex: 1; padding: 15px; background: #f0f0f0; border: none; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s ease; }
+        .auth-tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .alert { padding: 15px; border-radius: 10px; margin: 15px 0; font-weight: 500; }
+        .alert-success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .alert-error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1 class="auth-title"> TodoBalon</h1>
+            <p class="auth-subtitle">Sistema de Acceso</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchTab('user')"> Usuario</button>
+            <button class="auth-tab" onclick="switchTab('admin')"> Admin</button>
+        </div>
+        
+        <div id="userTab" class="tab-content active">
+            <form onsubmit="userLogin(event)">
+                <div class="form-group">
+                    <label for="userCode" class="form-label">Código de Acceso</label>
+                    <input type="text" id="userCode" class="form-input" placeholder="Ingresa tu código de acceso" required>
+                </div>
+                <button type="submit" class="auth-button"> Acceder a Canales</button>
+            </form>
+        </div>
+        
+        <div id="adminTab" class="tab-content">
+            <form onsubmit="adminLogin(event)">
+                <div class="form-group">
+                    <label for="adminPassword" class="form-label">Contraseña de Administrador</label>
+                    <input type="password" id="adminPassword" class="form-input" placeholder="Contraseña admin" required>
+                </div>
+                <button type="submit" class="auth-button"> Acceder como Admin</button>
+            </form>
+        </div>
+        
+        <div id="alertContainer"></div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+</html>
