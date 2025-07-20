@@ -99,6 +99,11 @@
             box-shadow: 0 6px 20px rgba(100, 100, 150, 0.4);
         }
         
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .error-message {
             background: rgba(231, 76, 60, 0.2);
             border: 1px solid rgba(231, 76, 60, 0.5);
@@ -108,6 +113,22 @@
             margin-bottom: 20px;
             display: none;
         }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -115,20 +136,20 @@
         <div class="auth-box">
             <div class="auth-header">
                 <h1>📺 TodoBalon</h1>
-                <p>Sistema de acceso simplificado</p>
+                <p>Ingresa tu código de acceso o contraseña de admin</p>
             </div>
             
             <div id="errorMessage" class="error-message"></div>
             
-            <form onsubmit="handleAccess(event)">
+            <form onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label for="accessCode">Código de Acceso</label>
-                    <input type="text" id="accessCode" placeholder="Código de usuario o contraseña admin" required>
+                    <input type="password" id="accessCode" placeholder="Código de usuario o admin123" required>
                     <small style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin-top: 5px; display: block;">
-                        💡 Si eres admin, usa tu contraseña. Si eres usuario, usa el código que te dieron.
+                        💡 Si eres admin usa: admin123 | Si eres usuario usa tu código
                     </small>
                 </div>
-                <button type="submit" class="auth-button">
+                <button type="submit" class="auth-button" id="loginBtn">
                     🔓 Acceder a TodoBalon
                 </button>
             </form>
@@ -136,51 +157,99 @@
     </div>
     
     <script>
-        // Configuración simple
-        const ADMIN_PASSWORD = 'todobalon2025';
-        const VALID_CODES = ['TB123456', 'TB789012', 'TB345678'];
-
-        async function handleAccess(event) {
+        // Configuración de tu backend
+        const API_BASE_URL = 'https://todobalon-backend.onrender.com/api';
+        
+        async function handleLogin(event) {
             event.preventDefault();
             
-            const code = document.getElementById('accessCode').value.trim();
+            const accessCode = document.getElementById('accessCode').value.trim();
             const errorDiv = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
             
             // Ocultar errores previos
             errorDiv.style.display = 'none';
             
-            if (!code) {
+            if (!accessCode) {
                 showError('Por favor ingresa un código');
                 return;
             }
             
-            // Verificar si es admin
-            if (code === ADMIN_PASSWORD) {
-                // Admin: guardar sesión especial y redirigir
-                localStorage.setItem('todobalon_session', JSON.stringify({
-                    type: 'admin',
-                    expires: new Date().getTime() + (24 * 60 * 60 * 1000)
-                }));
-                
-                window.location.href = 'index.html';
-                return;
-            }
+            // Mostrar loading
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading"></span>Verificando...';
             
-            // Verificar si es código de usuario válido
-            if (VALID_CODES.includes(code)) {
-                // Usuario: guardar sesión normal y redirigir
-                localStorage.setItem('todobalon_session', JSON.stringify({
-                    type: 'user',
-                    code: code,
-                    expires: new Date().getTime() + (24 * 60 * 60 * 1000)
-                }));
+            try {
+                let isAdmin = false;
+                let userData = null;
                 
-                window.location.href = 'index.html';
-                return;
+                // 1. Verificar si es admin (contraseña admin123)
+                if (accessCode === 'admin123') {
+                    const adminResponse = await fetch(`${API_BASE_URL}/auth/generate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            adminPassword: accessCode
+                        })
+                    });
+                    
+                    if (adminResponse.ok) {
+                        isAdmin = true;
+                        userData = {
+                            type: 'admin',
+                            name: 'Administrador'
+                        };
+                    }
+                }
+                
+                // 2. Si no es admin, verificar como código de usuario
+                if (!isAdmin) {
+                    const userResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            accessCode: accessCode
+                        })
+                    });
+                    
+                    if (userResponse.ok) {
+                        const result = await userResponse.json();
+                        if (result.success) {
+                            userData = {
+                                type: 'user',
+                                name: result.user?.name || 'Usuario',
+                                code: accessCode
+                            };
+                        }
+                    }
+                }
+                
+                // 3. Procesar resultado
+                if (userData) {
+                    // Guardar sesión
+                    localStorage.setItem('todobalon_session', JSON.stringify({
+                        ...userData,
+                        expires: new Date().getTime() + (24 * 60 * 60 * 1000) // 24 horas
+                    }));
+                    
+                    // Redirigir a la página principal
+                    window.location.href = 'index.html';
+                } else {
+                    showError('Código de acceso inválido. Contacta al administrador.');
+                }
+                
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                showError('Error de conexión. Verifica tu internet e intenta nuevamente.');
+            } finally {
+                // Restaurar botón
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '🔓 Acceder a TodoBalon';
             }
-            
-            // Código inválido
-            showError('Código de acceso inválido. Contacta al administrador.');
         }
         
         function showError(message) {

@@ -33,13 +33,19 @@
     <meta property="og:image" content="">
     <link rel="stylesheet" href="canal.css">
     
-    <!-- VERIFICACIÓN DE AUTENTICACIÓN SIMPLE -->
+    <!-- VERIFICACIÓN DE AUTENTICACIÓN SIMPLE CON BACKEND -->
     <script>
+        // Configuración de tu backend
+        const API_BASE_URL = 'https://todobalon-backend.onrender.com/api';
+        
+        // Variables globales
+        let userSession = null;
+        
         // Verificar autenticación al cargar la página
         window.addEventListener('DOMContentLoaded', function() {
             const session = localStorage.getItem('todobalon_session');
             if (!session) {
-                window.location.href = 'auth-simple.html';
+                window.location.href = 'auth-final.html';
                 return;
             }
             
@@ -47,109 +53,175 @@
                 const data = JSON.parse(session);
                 if (data.expires <= new Date().getTime()) {
                     localStorage.removeItem('todobalon_session');
-                    window.location.href = 'auth-simple.html';
+                    window.location.href = 'auth-final.html';
                     return;
                 }
                 
+                userSession = data;
+                
                 // Si es admin, mostrar controles de admin
                 if (data.type === 'admin') {
-                    console.log('👑 Sesión de administrador detectada');
-                    window.isAdmin = true;
-                    document.getElementById('adminControls').style.display = 'flex';
+                    console.log('👑 Sesión de administrador activa');
+                    showAdminControls();
+                } else {
+                    console.log('👤 Sesión de usuario activa:', data.name);
                 }
+                
             } catch(e) {
+                console.error('Error al verificar sesión:', e);
                 localStorage.removeItem('todobalon_session');
-                window.location.href = 'auth-simple.html';
+                window.location.href = 'auth-final.html';
             }
         });
         
-        // Funciones de admin
-        function logout() {
-            localStorage.removeItem('todobalon_session');
-            window.location.href = 'auth-simple.html';
+        // Mostrar controles de admin
+        function showAdminControls() {
+            const header = document.querySelector('header');
+            const adminControls = document.createElement('div');
+            adminControls.className = 'admin-controls';
+            adminControls.innerHTML = `
+                <button onclick="showAdminPanel()" class="admin-btn">
+                    👑 Generar Código
+                </button>
+                <button onclick="logout()" class="logout-btn">
+                    🚪 Salir
+                </button>
+            `;
+            
+            // Insertar después del título
+            const titleHeader = header.querySelector('.title-header');
+            titleHeader.parentNode.insertBefore(adminControls, titleHeader.nextSibling);
         }
         
-        function showAdminPanel() {
-            const code = generateAccessCode();
-            const modal = `
-                <div id="adminModal" style="
-                    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-                    background: rgba(0,0,0,0.8); z-index: 10000;
-                    display: flex; justify-content: center; align-items: center;
+        // Función de logout
+        function logout() {
+            localStorage.removeItem('todobalon_session');
+            window.location.href = 'auth-final.html';
+        }
+        
+        // Panel de admin para generar códigos
+        async function showAdminPanel() {
+            try {
+                // Generar código usando tu backend
+                const response = await fetch(`${API_BASE_URL}/auth/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        adminPassword: 'admin123'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const newCode = result.code;
+                    showCodeModal(newCode);
+                } else {
+                    alert('Error al generar código: ' + (result.message || 'Error desconocido'));
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión al generar código');
+            }
+        }
+        
+        // Modal para mostrar el código generado
+        function showCodeModal(code) {
+            const modal = document.createElement('div');
+            modal.id = 'adminModal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                background: rgba(0,0,0,0.9); z-index: 10000;
+                display: flex; justify-content: center; align-items: center;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.9));
+                    border-radius: 20px; padding: 40px; max-width: 500px; width: 90%;
+                    border: 1px solid rgba(100, 100, 150, 0.3);
+                    text-align: center; color: white;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
                 ">
+                    <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">👑 Código Generado</h2>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">Comparte este código con el usuario autorizado:</p>
                     <div style="
-                        background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.9));
-                        border-radius: 20px; padding: 40px; max-width: 400px; width: 90%;
-                        border: 1px solid rgba(100, 100, 150, 0.3);
-                        text-align: center; color: white;
-                    ">
-                        <h2 style="color: #fff; margin-bottom: 20px;">👑 Panel Administrador</h2>
-                        <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">Nuevo código generado:</p>
-                        <div style="
-                            background: rgba(0,255,0,0.1); border: 2px solid rgba(0,255,0,0.3);
-                            padding: 20px; border-radius: 10px; margin: 20px 0;
-                            font-size: 24px; font-weight: bold; letter-spacing: 3px;
-                            color: #00ff88;
-                        ">${code}</div>
-                        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">
-                            Comparte este código con usuarios autorizados
-                        </p>
+                        background: linear-gradient(135deg, rgba(0,255,0,0.1), rgba(0,200,100,0.1)); 
+                        border: 2px solid rgba(0,255,100,0.4);
+                        padding: 30px; border-radius: 15px; margin: 25px 0;
+                        font-size: 32px; font-weight: bold; letter-spacing: 4px;
+                        color: #00ff88; font-family: monospace;
+                        text-shadow: 0 0 20px rgba(0,255,100,0.5);
+                    ">${code}</div>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 30px;">
+                        ⚡ El usuario puede usar este código directamente en la página de login
+                    </p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
                         <button onclick="copyToClipboard('${code}')" style="
                             background: linear-gradient(135deg, #667eea, #764ba2);
-                            color: white; border: none; padding: 12px 24px;
-                            border-radius: 8px; margin-right: 10px; cursor: pointer;
-                        ">📋 Copiar</button>
+                            color: white; border: none; padding: 15px 30px;
+                            border-radius: 10px; cursor: pointer; font-weight: bold;
+                            font-size: 16px; transition: all 0.3s ease;
+                        ">📋 Copiar Código</button>
                         <button onclick="closeModal()" style="
-                            background: #dc3545; color: white; border: none; 
-                            padding: 12px 24px; border-radius: 8px; cursor: pointer;
+                            background: linear-gradient(135deg, #dc3545, #c82333); 
+                            color: white; border: none; padding: 15px 30px;
+                            border-radius: 10px; cursor: pointer; font-weight: bold;
+                            font-size: 16px; transition: all 0.3s ease;
                         ">❌ Cerrar</button>
                     </div>
                 </div>
             `;
-            document.body.insertAdjacentHTML('beforeend', modal);
+            
+            document.body.appendChild(modal);
         }
         
-        function generateAccessCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = 'TB';
-            for(let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
+        // Copiar código al portapapeles
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                alert('¡Código copiado al portapapeles! 📋');
+            } catch (err) {
+                // Fallback para navegadores viejos
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('¡Código copiado! 📋');
             }
-            
-            // Agregar a códigos válidos (solo en memoria, no persistente por ahora)
-            if (!window.generatedCodes) window.generatedCodes = [];
-            window.generatedCodes.push(code);
-            
-            return code;
         }
         
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('¡Código copiado al portapapeles!');
-            });
-        }
-        
+        // Cerrar modal
         function closeModal() {
             const modal = document.getElementById('adminModal');
             if (modal) modal.remove();
         }
     </script>
     
+    <!-- ESTILOS PARA CONTROLES DE ADMIN -->
     <style>
         .admin-controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
+            margin-left: auto;
+            margin-right: 20px;
         }
         
         .admin-btn, .logout-btn {
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
         .admin-btn {
@@ -159,17 +231,25 @@
         
         .admin-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(159, 79, 150, 0.4);
+            box-shadow: 0 6px 20px rgba(159, 79, 150, 0.4);
         }
         
         .logout-btn {
-            background: rgba(220, 53, 69, 0.8);
+            background: linear-gradient(135deg, #dc3545, #c82333);
             color: white;
         }
         
         .logout-btn:hover {
-            background: rgba(220, 53, 69, 1);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+        
+        /* Hacer que el header sea flex para acomodar los botones */
+        header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
         }
     </style>
 
@@ -192,8 +272,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.4/luxon.min.js" defer></script>
     <!-- CUSTOM JS-->
     <script src="canal.js?v=1.2" defer></script>
-    <!-- AUTH JS -->
-    <script src="auth.js" defer></script>
     
     <!-- SCRIPT PARA FORZAR AUTOPLAY INMEDIATO -->
     <script>
@@ -234,14 +312,7 @@
 <body>
     <header>
         <a href="/" class="title-header">TodoBalon</a>
-        <div class="admin-controls" id="adminControls" style="display: none;">
-            <button onclick="showAdminPanel()" class="admin-btn">
-                👑 Panel Admin
-            </button>
-            <button onclick="logout()" class="logout-btn">
-                🚪 Salir
-            </button>
-        </div>
+        <div></div>
         <div class="prelogo">
             <a href="/" class="logodef">
                 <img src="" alt="" class="">
