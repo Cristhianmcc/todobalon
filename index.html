@@ -42,7 +42,7 @@
         let userSession = null;
         
         // Verificar autenticaciÃ³n al cargar la pÃ¡gina
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('DOMContentLoaded', function() { console.log(' DOM Loaded, verificando autenticación...');
             const token = localStorage.getItem('todobalon_token'); const user = JSON.parse(localStorage.getItem('todobalon_user') || '{}' );
             console.log(' Verificando autenticación - Token:', !!token, 'User:', user); if (!token || !user.id) {
                 window.location.href = 'auth.html';
@@ -624,4 +624,5 @@ document.addEventListener('DOMContentLoaded', initializeAdminPanel);
 </body>
 
 </html>
+
 
